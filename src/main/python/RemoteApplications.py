@@ -1,3 +1,17 @@
+#  Copyright 2008-2011 Nokia Siemens Networks Oyj
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
 import os
 import re
 import time
@@ -12,7 +26,7 @@ from robot.running.namespace import IMPORTER
 try:
     from robot.running.testlibraries import TestLibrary
 except ImportError:
-    #Available only from RF 2.5 onwards. 
+    #Available only from RF 2.5 onwards.
     pass
 from robot.libraries.BuiltIn import BuiltIn
 from robot.libraries.OperatingSystem import OperatingSystem
@@ -68,7 +82,7 @@ class Applications:
 
     def _get_aliases_and_urls_from_db(self):
         items = []
-        for connection in self._read_lines(): 
+        for connection in self._read_lines():
             items.append(connection.rsplit('\t', 1))
         return items
 
@@ -152,7 +166,7 @@ class RemoteApplication:
         self._rmi_client = self._connect_to_base_rmi_service(alias, timeout, rmi_url)
         print "*INFO* Connected to remote service at '%s'" % self.rmi_url
 
-    def _connect_to_base_rmi_service(self, alias, timeout, rmi_url): 
+    def _connect_to_base_rmi_service(self, alias, timeout, rmi_url):
         start_time = time.time()
         while time.time() - start_time < timeout:
             url = self._retrieve_base_rmi_url(rmi_url)
@@ -205,11 +219,11 @@ class RemoteApplication:
 
     def _check_connection(self):
         if self._rmi_client is None:
-            raise RuntimeError("No connection established. Use keyword " + 
+            raise RuntimeError("No connection established. Use keyword " +
                                "'Start Application' or 'Application Started' " +
                                "before this keyword.")
 
-    def _import_remote_library(self, library_name): 
+    def _import_remote_library(self, library_name):
         return self._rmi_client.getObject().importLibrary(library_name)
 
     def close_application(self):
@@ -254,7 +268,7 @@ class RemoteApplication:
         if len(self._keywords[name]) == 1:
             return self._keywords[name][0].run_keyword(name, args)
         self._raise_error_from_duplicate_keywords(name, self._keywords[name])
-        
+
 
     def _raise_error_from_duplicate_keywords(self, name, libs):
         kw_names = ['%s.%s' % (lib.name, name) for lib in libs]
@@ -272,39 +286,39 @@ class RemoteApplicationsConnector:
     separate JVMs need to be tested in parallel or when application is started
     using Java Web Start. RemoteApplications library is also suitable when
     application use embedded JVMs (meaning they use the JNI Invocation API to
-    start the JVM), or when the startup is deeply nested in scripts. 
+    start the JVM), or when the startup is deeply nested in scripts.
 
     Using RemoteApplications requires that jvm_connector jar file is in
-    _CLASSPATH_ environment variable before starting RF test execution. 
-    RemoteApplications works with Java 1.5 and newer. Following paragraphs 
-    contain generic information about RemoteApplications library. See also 
+    _CLASSPATH_ environment variable before starting RF test execution.
+    RemoteApplications works with Java 1.5 and newer. Following paragraphs
+    contain generic information about RemoteApplications library. See also
     keywords' documentation for more detailed information.
 
-	A Java application that can be started via command line, can be started 
-	using the RemoteApplications library's `Start Application` keyword. Such 
+	A Java application that can be started via command line, can be started
+	using the RemoteApplications library's `Start Application` keyword. Such
 	cases include starting a Java and Java Web Start processes, for example:
     - java -jar myapp.jar
     - jawaws http://robotframework.org/myapp.jnlp
     - myapp.exe
-    
-    Otherwise the robot agent (see the chapter below) and `Application Started` 
+
+    Otherwise the robot agent (see the chapter below) and `Application Started`
     keyword must be used to enable the testing capabilities. Such cases include:
     - starting Java Web Start application from a web page
     - running application remotely
 
-    After the application is started, the needed test libraries must be taken 
-    into use. That is done using `Take Library Into Use` and `Take Libraries 
-    Into Use` keywords. After that, keywords are ready to be used. Note that the 
+    After the application is started, the needed test libraries must be taken
+    into use. That is done using `Take Library Into Use` and `Take Libraries
+    Into Use` keywords. After that, keywords are ready to be used. Note that the
     libraries needs to be taken into use separately for each application.
 
     If multiple applications are started with RemoteApplications library,
     `Switch To Application` keyword can be used to define which application is
     currently active. Keywords always handle the currently active application.
 
-    The application is closed using the keyword `Close Application`. Even if the 
-    application is closed using some other keyword, RemoteApplications library 
-    still needs to be informed about it, using the `Close Application` keyword. 
-    The `Close All Applications` keyword can be used to close all the 
+    The application is closed using the keyword `Close Application`. Even if the
+    application is closed using some other keyword, RemoteApplications library
+    still needs to be informed about it, using the `Close Application` keyword.
+    The `Close All Applications` keyword can be used to close all the
     applications.
 
     *NOTE:* RemoteApplications cannot be taken into use with _WITH NAME_
@@ -324,8 +338,8 @@ class RemoteApplicationsConnector:
 
     where _${jvmconnector.jar}_ is the path to the jvmconnector.jar and
     _${testing_dependencies_dir}_ is the path to the directory containing the
-    test library jars. The optional _:PORT=${port}_ setting can be provided, 
-    where the _:PORT=_ is separator, and _${port}_ defines the port number where 
+    test library jars. The optional _:PORT=${port}_ setting can be provided,
+    where the _:PORT=_ is separator, and _${port}_ defines the port number where
     the service providing the testing capabilities is started.
 
     Examples of the setting command:
@@ -351,7 +365,7 @@ class RemoteApplicationsConnector:
     application's JVM with the Robot Agent. Therefore the test libraries need
     to be added to the classpath with some other means. Often it is possible to
     just add the needed jars to CLASSPATH environment variable. However, in case
-    application's startup script clears the CLASSPATH or if application is 
+    application's startup script clears the CLASSPATH or if application is
     started using Java Web Start, setting CLASSPATH environment variable is not
     enough. In such situations the test libraries need to be included into the
     jvmconnector.jar file's classpath. This can be achieved by updating the
@@ -363,10 +377,10 @@ class RemoteApplicationsConnector:
 
     Class-Path: ../relative/path/to/test_library.jar path/to/another_test_library.jar
 
-    This example entry in the manifest.txt includes two test library jars to the 
-    jvmconnector.jar file's MANIFEST.MF. Paths to the test libraries have to be 
-    relative to the jvmconnector.jar and line needs to end with new line 
-    character. See more from 
+    This example entry in the manifest.txt includes two test library jars to the
+    jvmconnector.jar file's MANIFEST.MF. Paths to the test libraries have to be
+    relative to the jvmconnector.jar and line needs to end with new line
+    character. See more from
     http://java.sun.com/docs/books/tutorial/deployment/jar/downman.html
     """
     _database = DataBasePaths().getLaunchedFile()
@@ -387,19 +401,19 @@ class RemoteApplicationsConnector:
     def connect(self, connect_to_previously_started_applications):
         self._use_previously_launched = connect_to_previously_started_applications
 
-    def start_application(self, alias, command, timeout='60 seconds', 
+    def start_application(self, alias, command, timeout='60 seconds',
                           lib_dir=None, port=None):
         """Starts the application, connects to it and makes it active application.
 
         `command` is the command used to start the application from the command
         line. It can be any command that finally starts JVM e.g. 'java -jar
-        my_application.jar', javaws http://my.domain.fi/my_application.jnlp or 
+        my_application.jar', javaws http://my.domain.fi/my_application.jnlp or
         'start_my_app.bat'.
 
         `lib_dir` is path to the directory containing all the test library jar
         files which are required for running the tests. `lib_dir` is needed in
         case libraries are not in the CLASSPATH. When application is started
-        using Java Web Start and Java version is 1.6 or higher, `lib_dir` is 
+        using Java Web Start and Java version is 1.6 or higher, `lib_dir` is
         mandatory. In case you are using 1.5 Java, you should package all these
         libraries to the `jvm_connector_jar` which is set to CLASSPATH before
         starting the test execution.
@@ -411,7 +425,7 @@ class RemoteApplicationsConnector:
         | _grant {_
         |     _permission java.security.AllPermission;_
         | _};_
-        
+
         `port` defines the port in which the testing capabilities are started
         on the application. By default port is selected randomly from available
         ports.
@@ -421,7 +435,7 @@ class RemoteApplicationsConnector:
         | Start Application | App2 | my_application.exe |  | \${CURDIR}${/}libs | 12345 |
 
         *NOTE:* If the application is used to start other applications
-        and those applications should be controlled with RemoteApplications, 
+        and those applications should be controlled with RemoteApplications,
         port should NOT be given.
 
         To access application started in previous test run, you can set
@@ -459,7 +473,7 @@ class RemoteApplicationsConnector:
         lib_dir = lib_dir or ''
         jvm_connector_jar = self._get_jvm_connector_jar()
         port = port and ['PORT=%s' % port] or []
-        return '-javaagent:"%s"="%s"' % (jvm_connector_jar, 
+        return '-javaagent:"%s"="%s"' % (jvm_connector_jar,
                                          os.path.pathsep.join(port + [lib_dir]))
 
     def _get_jvm_connector_jar(self):
@@ -497,8 +511,8 @@ class RemoteApplicationsConnector:
     def application_started(self, alias, timeout='60 seconds', rmi_url=None):
         """Connects to started application and switches to it.
 
-        `alias` is the alias name for the application. When using multiple 
-        applications alias is used to switch between them with keyword `Switch 
+        `alias` is the alias name for the application. When using multiple
+        applications alias is used to switch between them with keyword `Switch
         To Application`.
 
         `timeout` is the time to wait the application to be started to the point
@@ -509,13 +523,13 @@ class RemoteApplicationsConnector:
         used locally there is usually no need to give the `rmi_url`. However,
         when the application is running on remote machine, the file based
         mechanism used to find the application is not enough and you need to
-        provide the `rmi_url`. Format of the `rmi_url` is 
+        provide the `rmi_url`. Format of the `rmi_url` is
         'rmi://host:port/robotrmiservice'. See from `Introduction` info about
         Robot Agent.
 
         To access application started in previous test run, you can set
         `connect_to_previously_launched_applications` when `Importing` library.
-        If the previously started application is available, this keyword 
+        If the previously started application is available, this keyword
         connects to it in case the 'rmi_url' is not given.
 
         Examples:
@@ -601,7 +615,7 @@ class RemoteApplicationsConnector:
 
     def take_library_into_use(self, library_name):
         """Takes given library into use.
-        
+
         See `Take Libraries Into Use` keyword for more details.
         """
         #TODO: Add support for arguments
@@ -648,7 +662,7 @@ class RemoteApplicationsConnector:
 
     def application_should_not_be_connected(self, timeout="2 seconds"):
         """Checks that there is no connection to the active application.
-        
+
         `timeout` is time that the application is waited to be closed. Sometimes
         closing application takes some time and therefore it might take while
         before it is really closed."""
@@ -721,7 +735,7 @@ class RemoteApplications:
     def __init__(self, connect_to_previously_launched_applications=''):
         """
         `connect_to_previously_launched_applications` defines whether to connect
-        applications that were started in previous test execution. By default 
+        applications that were started in previous test execution. By default
         this feature is not in use. It can be taken into use by giving any value
         to library initialization like shown in below examples:
 
