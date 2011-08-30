@@ -597,21 +597,21 @@ class RemoteApplicationsConnector:
             del(testlibs[name])
 
     def _remove_lib_from_importer(self, name, args):
-        if IMPORTER._libraries.has_key((name, tuple(args))):
-            del(IMPORTER._libraries[(name, tuple(args))])
-        elif IMPORTER._libraries.has_key((name, args)):
+        if (name, tuple(args)) in IMPORTER._library_cache:
+            del(IMPORTER._library_cache[(name, tuple(args))])
+        elif (name, args) in IMPORTER._library_cache:
                 self._delete_item_from_cache((name, args))
         else:
             #RF 2.5 support
             lib = TestLibrary(name, args, None, create_handlers=False)
             key = (name, lib.positional_args, lib.named_args)
-            if IMPORTER._libraries.has_key(key):
+            if key in IMPORTER._library_cache:
                 self._delete_item_from_cache(key)
 
     def _delete_item_from_cache(self, key):
-        index = IMPORTER._libraries._keys.index(key)
-        IMPORTER._libraries._keys.pop(index)
-        IMPORTER._libraries._libs.pop(index)
+        index = IMPORTER._library_cache._keys.index(key)
+        IMPORTER._library_cache._keys.pop(index)
+        IMPORTER._library_cache._items.pop(index)
 
     def take_library_into_use(self, library_name):
         """Takes given library into use.
