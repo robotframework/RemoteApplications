@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0+"
+      codebase="http://localhost:14563/test-app" 
+      href="test-application.jnlp">
+   <information>
+      <title>JvmConnector Demo</title>
+      <vendor>http://www.robotframework.org</vendor>
+      <description>JvmConnector Demo</description>
+      <homepage href="http://code.google.com/p/robotframework-javatools/wiki/JvmConnector"/>
+      <offline-allowed/>
+   </information>
+    <security><all-permissions/></security>
+    <resources>
+        <jar href="test-application.jar" main="true"/>
+        <j2se version="1.4+" href="http://java.sun.com/products/autodl/j2se"/>
+    </resources>
+    <application-desc/>
+</jnlp>

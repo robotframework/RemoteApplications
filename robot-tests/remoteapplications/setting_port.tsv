@@ -1,0 +1,19 @@
+*** Settings ***
+
+Resource	remoteapps_resource.tsv
+
+
+*** Test Cases ***
+Defining Port To Start Application
+	Start Simple Application	AppWithPort	13254
+	Take Library Into Use	${JVM CONNECTOR LIB}
+	Application Should Be In Use	AppWithPort
+	[Teardown]	Close Application
+
+Starting Application Separately And Giving URL
+	Set Environment Variable	JAVA_TOOL_OPTIONS	-javaagent:${JAVA AGENT JAR}=${JAR DIR}:PORT=13245
+	Start Process	java -Dproperty.name=""AppWithPort2"" ${APPLICATION}
+	Set Environment Variable	JAVA_TOOL_OPTIONS	${EMPTY}
+	Application Started	AppWithPort2	10 seconds	rmi://localhost:13245/robotrmiservice
+	Application Should Be In Use	AppWithPort2
+	[Teardown]	Close Application

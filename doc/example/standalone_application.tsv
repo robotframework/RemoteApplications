@@ -1,0 +1,47 @@
+*** Settings ***
+Library	RemoteApplications
+Test Teardown	Close Application
+
+*** Variable ***
+${MAIN CLASS}	org.robotframework.example.Application
+${VALID PASSWORD}	robot
+${LIB DIRECTORY}	${CURDIR}${/}lib
+
+
+*** Test Cases ***
+Valid Login
+	Start Demo Application	ValidLogin
+	Login	${VALID PASSWORD}
+	Application Should Be Opened
+	Push Exit Button
+	Application Should Be Closed
+
+Invalid Login
+	Start Demo Application	InvalidLogin
+	Login	invalid password
+	Application Should Be Closed
+
+
+*** Keywords ***
+Start Demo Application
+	[Arguments]	${name}
+	Start Application	${name}	java ${MAIN CLASS}	10 seconds	${LIB DIRECTORY}
+	Take Libraries Into Use	SwingLibrary	JavaTools
+
+Login
+	[Arguments]	${password}
+	Wait Until Keyword Succeeds	2 seconds	0.5 seconds	Select Dialog	0
+	Insert Into Text Field	0	${password}
+	pushButton	0
+
+Application Should Be Opened
+	Select Main Window
+	Label Text Should Be	title_label	Welcome!
+
+Push Exit Button
+	Comment	Error in pushing button needs to be ignored as system.exit is called
+	...	and connection to the remote JVM (SUT) is immediately lost.
+	Run Keyword And Ignore Error	Push Button	exit_button
+
+Application Should Be Closed
+	Application Should Not Be Connected

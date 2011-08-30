@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+        "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="library" class="org.robotframework.jvmconnector.keyword.JvmconnectorKeywords" />
+
+  <bean id="rmiService" class="org.robotframework.jvmconnector.server.SimpleRobotRmiService">
+    <property name="library" ref="library" />
+  </bean>
+
+  <bean id="serviceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+    <property name="serviceName" value="myApp" />
+    <property name="service" ref="rmiService" />
+    <property name="registryPort" value="11099" />
+    <property name="serviceInterface" value="org.robotframework.jvmconnector.server.RobotRmiService" />
+  </bean>
+</beans>
+

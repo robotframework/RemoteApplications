@@ -1,0 +1,344 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<title>RemoteApplications - Documentation</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style>
+  body {
+    background: white;
+    color: black;
+  }
+
+  /* Generic Table Styles */
+  table {
+    background: white;
+    border: 1px solid black;
+    border-collapse: collapse;
+    empty-cells: show;
+    margin: 0.3em 0em;
+  }
+  th, td {
+    border: 1px solid black;
+    padding: 0.2em;
+  }
+  th {
+    background: #C6C6C6;
+  }
+  td {
+    vertical-align: top;
+  }    
+
+  /* Columns */
+  td.kw {
+    font-weight: bold;
+  }
+  td.arg {
+    width: 300px;
+    font-style: italic;
+  }
+  td.doc {
+  }
+
+  /* Tables in documentation */
+  table.doc {
+    border: 1px solid gray;
+    background: transparent;
+    border-collapse: collapse;
+    empty-cells: show;
+    font-size: 0.85em;
+    font-family: arial,helvetica,sans-serif;
+  }
+  table.doc td {
+    border: 1px solid gray;
+    padding: 0.1em 0.3em;
+    height: 1.2em;
+  }
+
+  /* Paragraphs */
+  .libdoc, .links {
+    width: 800px;
+  }
+
+  /* Misc */
+  a.name, span.name {  
+    font-style: italic;
+    background: #f4f4f4;
+    text-decoration: none;
+  }
+  a:link, a:visited {
+    color: blue;
+  }
+  a:hover, a:active {
+    text-decoration: underline;
+    color: purple;
+  }
+  .footer {
+    font-size: 0.9em;
+  }
+</style>
+</head>
+<body>
+<h1>RemoteApplications - Documentation</h1>
+
+<h2 id="introduction">Introduction</h2>
+<p class='libdoc'>RemoteApplications library is used for launching Java applications in a separate process and taking Robot Framework (RF) libraries into use to operate on them. This is useful when application does something that cannot be tested with RF when running inside the same JVM. Such cases are when System.exit is called in the SUT, when multiple applications running in separate JVMs need to be tested in parallel or when application is started using Java Web Start. RemoteApplications library is also suitable when application use embedded JVMs (meaning they use the JNI Invocation API to start the JVM), or when the startup is deeply nested in scripts.<br />
+<br />
+Using RemoteApplications requires that jvm_connector jar file is in <i>CLASSPATH</i> environment variable before starting RF test execution. RemoteApplications works with Java 1.5 and newer. Following paragraphs contain generic information about RemoteApplications library. See also keywords' documentation for more detailed information.<br />
+<br />
+A Java application that can be started via command line, can be started using the RemoteApplications library's <a href="#Start Application" class="name">Start Application</a> keyword. Such cases include starting a Java and Java Web Start processes, for example:<br />
+- java -jar myapp.jar<br />
+- jawaws <a href="http://robotframework.org/myapp.jnlp">http://robotframework.org/myapp.jnlp</a><br />
+- myapp.exe<br />
+<br />
+Otherwise the robot agent (see the chapter below) and <a href="#Application Started" class="name">Application Started</a> keyword must be used to enable the testing capabilities. Such cases include:<br />
+- starting Java Web Start application from a web page<br />
+- running application remotely<br />
+<br />
+After the application is started, the needed test libraries must be taken into use. That is done using <a href="#Take Library Into Use" class="name">Take Library Into Use</a> and <a href="#Take Libraries Into Use" class="name">Take Libraries Into Use</a> keywords. After that, keywords are ready to be used. Note that the libraries needs to be taken into use separately for each application.<br />
+<br />
+If multiple applications are started with RemoteApplications library, <a href="#Switch To Application" class="name">Switch To Application</a> keyword can be used to define which application is currently active. Keywords always handle the currently active application.<br />
+<br />
+The application is closed using the keyword <a href="#Close Application" class="name">Close Application</a>. Even if the application is closed using some other keyword, RemoteApplications library still needs to be informed about it, using the <a href="#Close Application" class="name">Close Application</a> keyword. The <a href="#Close All Applications" class="name">Close All Applications</a> keyword can be used to close all the applications.<br />
+<br />
+<b>NOTE:</b> RemoteApplications cannot be taken into use with <i>WITH NAME</i> functionality. However, there should not be a need for that as the RemoteApplications library can handle multiple applications.<br />
+<br />
+<b>ROBOT AGENT</b><br />
+<br />
+Sometimes the application cannot be started locally from command line. In that case the Robot Agent needs to be used. It will start testing capabilities to the started application's JVM. Robot Agent works with Java Web Start applications and standalone java applications. It is taken into use by setting the <i>JAVA_TOOL_OPTIONS</i> environment variable with value:<br />
+<br />
+<i>-javaagent:"${jvmconnector.jar}"="${testing_dependencies_dir}"[:PORT=${port}]</i><br />
+<br />
+where <i>${jvmconnector.jar}</i> is the path to the jvmconnector.jar and <i>${testing_dependencies_dir}</i> is the path to the directory containing the test library jars. The optional <i>:PORT=${port}</i> setting can be provided, where the <i>:PORT=</i> is separator, and <i>${port}</i> defines the port number where the service providing the testing capabilities is started.<br />
+<br />
+Examples of the setting command:<br />
+<br />
+<i>-javaagent:"jvmconnector-1.0.jar"="c:\some\testing\lib"</i><br />
+<br />
+<i>-javaagent:"~/some/testing/lib/jvmconnector-1.0.jar"="~/some/testing/lib":PORT=12345</i><br />
+<br />
+When Robot Agent is used (RemoteApplications uses it internally) and the port parameter is not given, rmi_url from where the testing capabilities can be accessed is written to file <span class="name">%HOME/.robotframework/jvmconnector/launched.txt</span> or to file <span class="name">%APPDATA%\RobotFramework\jvmconnector\launched.txt</span> on Windows. In case application is started on remote machine, this rmi_url needs to be given to <a href="#Application Started" class="name">Application Started</a> keyword. When <a href="#Application Started" class="name">Application Started</a> keyword establishes connection to the application, <span class="name">launched.txt</span> is cleared and the active connection is added to <span class="name">connected.txt</span> file (located in same directory as <span class="name">launched.txt</span>). This file is used to connect active application in case the <span class="name">connect_to_previously_launched_applications</span> argument is given when <a href="#importing" class="name">importing</a> RemoteApplications library.<br />
+<br />
+<b>NOTE:</b> With Java 1.5 the testing dependencies cannot be added to the application's JVM with the Robot Agent. Therefore the test libraries need to be added to the classpath with some other means. Often it is possible to just add the needed jars to CLASSPATH environment variable. However, in case application's startup script clears the CLASSPATH or if application is started using Java Web Start, setting CLASSPATH environment variable is not enough. In such situations the test libraries need to be included into the jvmconnector.jar file's classpath. This can be achieved by updating the jvmconnector.jar file's MANIFEST.MF file with command:<br />
+<br />
+<span class="name">jar ufm jvmconnector.jar manifest.txt</span><br />
+<br />
+For example, insert following line to the manifest.txt:<br />
+<br />
+Class-Path: ../relative/path/to/test_library.jar path/to/another_test_library.jar<br />
+<br />
+This example entry in the manifest.txt includes two test library jars to the jvmconnector.jar file's MANIFEST.MF. Paths to the test libraries have to be relative to the jvmconnector.jar and line needs to end with new line character. See more from <a href="http://java.sun.com/docs/books/tutorial/deployment/jar/downman.html">http://java.sun.com/docs/books/tutorial/deployment/jar/downman.html</a></p>
+
+<h2 id="importing">Importing</h2>
+<table class="keywords">
+<tr>
+  <th class="arg">Arguments</th>
+  <th class="doc">Documentation</th>
+</tr>
+<tr>
+  <td class="arg">connect_to_previously_launched_applications=</td>
+  <td class="doc"><span class="name">connect_to_previously_launched_applications</span> defines whether to connect applications that were started in previous test execution. By default this feature is not in use. It can be taken into use by giving any value to library initialization like shown in below examples:<br />
+<br />
+<table border="1" class="doc">
+<tr>
+<td>Library</td>
+<td>RemoteApplications</td>
+<td># Does not connect to previously started applications</td>
+<td></td>
+</tr>
+<tr>
+<td>Library</td>
+<td>RemoteApplications</td>
+<td>Reconnect</td>
+<td># Connects to previously started applications</td>
+</tr>
+</table>
+<br />
+Setting <span class="name">connect_to_previously_launched_applications</span> fastens the test case development as you can open the application once, and after that, re-execute the test against the opened application without restarting it. Obviously, you need to disable closing the application to achieve this. Reconnecting can also be achieved by using fixed <span class="name">rmi_url</span>, either by giving <span class="name">port</span> argument to <a href="#Start Application" class="name">Start Application</a> keyword or <span class="name">rmi_url</span> to <a href="#Application Started" class="name">Application Started</a> keyword.</td>
+</tr>
+</table>
+
+<h2>Shortcuts</h2>
+<div class='links'>
+<a href="#Application Should Be Connected" title="Checks is there connection to the active application.">Application&nbsp;Should&nbsp;Be&nbsp;Connected</a>&nbsp;
+<a href="#Application Should Not Be Connected" title="Checks that there is no connection to the active application.">Application&nbsp;Should&nbsp;Not&nbsp;Be&nbsp;Connected</a>&nbsp;
+<a href="#Application Started" title="Connects to started application and switches to it.">Application&nbsp;Started</a>&nbsp;
+<a href="#Close All Applications" title="Closes all the applications.">Close&nbsp;All&nbsp;Applications</a>&nbsp;
+<a href="#Close Application" title="Closes application.">Close&nbsp;Application</a>&nbsp;
+<a href="#Start Application" title="Starts the application, connects to it and makes it active application.">Start&nbsp;Application</a>&nbsp;
+<a href="#Switch To Application" title="Changes the application where the keywords are executed.">Switch&nbsp;To&nbsp;Application</a>&nbsp;
+<a href="#Take Libraries Into Use" title="Takes the libraries into use at the remote application.">Take&nbsp;Libraries&nbsp;Into&nbsp;Use</a>&nbsp;
+<a href="#Take Library Into Use" title="Takes given library into use.">Take&nbsp;Library&nbsp;Into&nbsp;Use</a>&nbsp;
+</div>
+
+<h2>Keywords</h2>
+<table class="keywords">
+<tr>
+  <th class="kw">Keyword</th>
+  <th class="arg">Arguments</th>
+  <th class="doc">Documentation</th>
+</tr>
+<tr>
+  <td class="kw"><a name="Application Should Be Connected"></a>Application Should Be Connected</td>
+  <td class="arg"></td>
+  <td class="doc">Checks is there connection to the active application.</td>
+</tr>
+<tr>
+  <td class="kw"><a name="Application Should Not Be Connected"></a>Application Should Not Be Connected</td>
+  <td class="arg">timeout=2 seconds</td>
+  <td class="doc">Checks that there is no connection to the active application.<br />
+<br />
+<span class="name">timeout</span> is time that the application is waited to be closed. Sometimes closing application takes some time and therefore it might take while before it is really closed.</td>
+</tr>
+<tr>
+  <td class="kw"><a name="Application Started"></a>Application Started</td>
+  <td class="arg">alias, timeout=60 seconds, rmi_url=None</td>
+  <td class="doc">Connects to started application and switches to it.<br />
+<br />
+<span class="name">alias</span> is the alias name for the application. When using multiple applications alias is used to switch between them with keyword <a href="#Switch To Application" class="name">Switch To Application</a>.<br />
+<br />
+<span class="name">timeout</span> is the time to wait the application to be started to the point where the testing capabilities are initialized and the connection to application can be established.<br />
+<br />
+<span class="name">rmi_url</span> is url that can be used to connect to the application. When used locally there is usually no need to give the <span class="name">rmi_url</span>. However, when the application is running on remote machine, the file based mechanism used to find the application is not enough and you need to provide the <span class="name">rmi_url</span>. Format of the <span class="name">rmi_url</span> is '<a href="rmi://host:port/robotrmiservice">rmi://host:port/robotrmiservice</a>'. See from <a href="#introduction" class="name">Introduction</a> info about Robot Agent.<br />
+<br />
+To access application started in previous test run, you can set <span class="name">connect_to_previously_launched_applications</span> when <a href="#importing" class="name">Importing</a> library. If the previously started application is available, this keyword connects to it in case the 'rmi_url' is not given.<br />
+<br />
+Examples:<br />
+<table border="1" class="doc">
+<tr>
+<td>Application Started</td>
+<td>App1</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Application Started</td>
+<td>App2</td>
+<td>2 minutes</td>
+<td><a href="rmi://localhost:7000/robotrmiservice">rmi://localhost:7000/robotrmiservice</a></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+  <td class="kw"><a name="Close All Applications"></a>Close All Applications</td>
+  <td class="arg"></td>
+  <td class="doc">Closes all the applications.</td>
+</tr>
+<tr>
+  <td class="kw"><a name="Close Application"></a>Close Application</td>
+  <td class="arg">alias=None</td>
+  <td class="doc">Closes application.<br />
+<br />
+If <span class="name">alias</span> is given, closes application related to the alias. Otherwise closes the active application.</td>
+</tr>
+<tr>
+  <td class="kw"><a name="Start Application"></a>Start Application</td>
+  <td class="arg">alias, command, timeout=60 seconds, lib_dir=None, port=None</td>
+  <td class="doc">Starts the application, connects to it and makes it active application.<br />
+<br />
+<span class="name">command</span> is the command used to start the application from the command line. It can be any command that finally starts JVM e.g. 'java -jar my_application.jar', javaws <a href="http://my.domain.fi/my_application.jnlp">http://my.domain.fi/my_application.jnlp</a> or 'start_my_app.bat'.<br />
+<br />
+<span class="name">lib_dir</span> is path to the directory containing all the test library jar files which are required for running the tests. <span class="name">lib_dir</span> is needed in case libraries are not in the CLASSPATH. When application is started using Java Web Start and Java version is 1.6 or higher, <span class="name">lib_dir</span> is mandatory. In case you are using 1.5 Java, you should package all these libraries to the <span class="name">jvm_connector_jar</span> which is set to CLASSPATH before starting the test execution.<br />
+<br />
+When Java Web Start is used to start the application, there is need to allow permissions for the testing capabilities. Easiest way to do that is to add file .java.policy with following content to $HOME directory or %USERPROFILE% directory on Windows:<br />
+| <i>grant {</i><br />
+| &nbsp; &nbsp; <i>permission java.security.AllPermission;</i><br />
+| <i>};</i><br />
+<br />
+<span class="name">port</span> defines the port in which the testing capabilities are started on the application. By default port is selected randomly from available ports.<br />
+<br />
+Examples:<br />
+<table border="1" class="doc">
+<tr>
+<td>Start Application</td>
+<td>App1</td>
+<td>java -jar my_application.jar</td>
+<td>30 seconds</td>
+<td>\${CURDIR}${/}libs</td>
+<td></td>
+</tr>
+<tr>
+<td>Start Application</td>
+<td>App2</td>
+<td>my_application.exe</td>
+<td></td>
+<td>\${CURDIR}${/}libs</td>
+<td>12345</td>
+</tr>
+</table>
+<br />
+<b>NOTE:</b> If the application is used to start other applications and those applications should be controlled with RemoteApplications, port should NOT be given.<br />
+<br />
+To access application started in previous test run, you can set <span class="name">connect_to_previously_launched_applications</span> when <a href="#importing" class="name">Importing</a> library. If the application is available, this keyword connects to it and does NOT run the command for starting it.<br />
+</td>
+</tr>
+<tr>
+  <td class="kw"><a name="Switch To Application"></a>Switch To Application</td>
+  <td class="arg">alias</td>
+  <td class="doc">Changes the application where the keywords are executed.<br />
+<br />
+<span class="name">alias</span> is the name of the application and it have been given with the <a href="#Application Started" class="name">Application Started</a> keyword.<br />
+<br />
+Example:<br />
+<table border="1" class="doc">
+<tr>
+<td>Switch To Application</td>
+<td>App2</td>
+</tr>
+<tr>
+<td>Do Something</td>
+<td># Keyword operates App2</td>
+</tr>
+<tr>
+<td>Switch To Application</td>
+<td>App1</td>
+</tr>
+<tr>
+<td>Do Something</td>
+<td># Keyword operates App1</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+  <td class="kw"><a name="Take Libraries Into Use"></a>Take Libraries Into Use</td>
+  <td class="arg">*library_names</td>
+  <td class="doc">Takes the libraries into use at the remote application.<br />
+<br />
+<span class="name">library_names</span> contains all the libraries that you want to take into use on the remote side. <b>NOTE:</b> See 'Start Application' for information how to provide library jar files.<br />
+<br />
+Example:<br />
+<table border="1" class="doc">
+<tr>
+<td>Start Application</td>
+<td>App1</td>
+<td>java -jar my_application.jar</td>
+<td>2 min</td>
+<td>\${CURDIR}${/}libs</td>
+</tr>
+<tr>
+<td>Take Libraries Into Use</td>
+<td>MyLibrary</td>
+<td>SwingLibrary</td>
+<td></td>
+<td></td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+  <td class="kw"><a name="Take Library Into Use"></a>Take Library Into Use</td>
+  <td class="arg">library_name</td>
+  <td class="doc">Takes given library into use.<br />
+<br />
+See <a href="#Take Libraries Into Use" class="name">Take Libraries Into Use</a> keyword for more details.<br />
+</td>
+</tr>
+</table>
+<p class="footer">
+Altogether 9 keywords.<br />
+Generated by <a href="http://code.google.com/p/robotframework/wiki/LibraryDocumentationTool">libdoc.py</a>
+on 2010-02-19 10:29:09.
+</p>
+</body>
+</html>

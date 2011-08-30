@@ -1,0 +1,35 @@
+*** Settings ***
+Library	OperatingSystem
+Library	org.robotframework.jvmconnector.common.DataBasePaths
+Suite Setup	Run Tests	_start_applications
+Suite Teardown	Remove Connected File
+
+
+*** Variables ***
+${RUNNER}	${CURDIR}${/}..${/}..${/}run_tests.py
+
+
+*** Test Cases ***
+
+Connect To Previously Started Application/Applications Using Start Application Keyword & Application Started Keyword
+	Run Tests	_connect_to_previously_started_application	--exclude invalid
+
+Connect To Previously Started Application When Connection File Is Invalid
+	Make Connected File Invalid	
+	Run Tests	_connect_to_previously_started_application	--include invalid
+
+*** Keywords ***
+Make Connected File Invalid
+	${path} =	Get Connected File
+	Append To File	${path}	\ninvalid\n
+
+Remove Connected File
+	${path} =	Get Connected File
+	Remove File	${path}
+
+Run Tests
+	[Arguments]	${suite}	${args}=
+	${rc}	${output} =	Run And Return Rc And Output	${RUNNER} --log ${suite}_log.html --report ${suite}_report.html --output ${suite}_output.xml ${args} ${CURDIR}${/}${suite}.tsv
+	Log	${output}
+	Should Be Equal As Numbers	${rc}	0	Running tests failed, see log for more details.	no values
+	

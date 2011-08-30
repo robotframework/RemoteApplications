@@ -1,0 +1,2 @@
+*** Settings ***
+Suite Setup	Fail	Cannot execute all tests at once as there are conflicting keyword names.

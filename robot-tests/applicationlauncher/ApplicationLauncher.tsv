@@ -1,0 +1,121 @@
+*** Setting ***
+
+resource	applauncher_resource.tsv
+library	ApplicationLauncher	${APPLICATION}	WITH NAME	myAppLauncher
+library	ApplicationLauncher	${APPLICATION}	1sec	WITH NAME	oneSec
+library	ApplicationLauncher	${APPLICATION}	20sec	WITH NAME	tenSec
+library	ApplicationLauncher	${APPLICATION}	WITH NAME	reimport
+library	ApplicationLauncher	${APPLICATION}	20sec	WITH NAME	passingArguments
+library	ApplicationLauncher	${APPLICATION}	WITH NAME	multipleLauncher
+library	ApplicationLauncher	${APPLICATION}	WITH NAME	closeable
+library	ApplicationLauncher	${APPLICATION}	WITH NAME	logging
+suiteSetup	startAppAndImportSomething
+
+
+*** Variable ***
+
+
+*** Test Case ***
+
+Closes Application That Has Been Started In Suite Setup
+	myAppLauncher.closeApplication
+
+Starts Application And Imports Remote Library
+	myAppLauncher.startApplication
+	myAppLauncher.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	myApp
+	remoteLibraryShouldBeImported	myApp
+	[teardown]	myAppLauncher.closeApplication
+
+Starts Application And Imports Remote Library With Java Agent
+	[tags]	javaagent
+	startApplicationWithJavaAgent
+	myAppLauncher.ApplicationStarted
+	myAppLauncher.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	myApp
+	remoteLibraryShouldBeImported	myApp
+	[teardown]	closeAppStartedWithJavaAgent	myAppLauncher
+
+Importing Remote Library Times Outs If Application Is Not Started	[tags]	problem
+	shouldFailInApproximatelyOneSecond	${timeoutMsg}	oneSec.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	thisShouldFail
+
+Importing Remote Library Times Outs If Application Is Stopped	[tags]	problem
+	tenSec.startApplication
+	tenSec.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	stoppedApp
+	runKeywordAndIgnoreError	stoppedApp.stopJvm
+	shouldFailInApproximatelyTwentySeconds	${timeoutMsg}	tenSec.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	thisShouldFail
+
+Reimports After Restart
+	reimport.startApplication
+	reimport.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	someApp
+	remoteLibraryShouldBeImported	someApp
+	runKeywordAndIgnoreError	someApp.stopJvm
+	reimport.startApplication
+	reimport.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	someApp
+	remoteLibraryShouldBeImported	someApp
+	[teardown]	reimport.closeApplication
+
+Reimports After Restart With Java Agent
+	[tags]	javaagent
+	startApplicationWithJavaAgent
+	reimport.applicationStarted
+	reimport.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	someApp
+	remoteLibraryShouldBeImported	someApp
+	runKeywordAndIgnoreError	someApp.stopJvm
+	startApplicationWithJavaAgent
+	reimport.applicationStarted
+	reimport.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	someApp
+	remoteLibraryShouldBeImported	someApp
+	[teardown]	closeAppStartedWithJavaAgent	reimport
+
+Passes Arguments
+	passingArguments.startApplication	baz	-Dfoo=bar
+	passingArguments.importRemoteLibrary	JavaTools
+	passingArguments.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	myApp2
+	${property}=	getSystemProperty	foo
+	@{args}=	myApp2.getArguments
+	shouldBeEqualAsStrings	bar	${property}
+	shouldBeEqualAsStrings	baz	@{args}
+	[teardown]	passingArguments.closeApplication
+
+Close Application
+	closeable.startApplication
+	closeable.importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	closeableApp
+	remoteLibraryShouldBeImported	closeableApp
+	closeable.closeApplication
+	runKeywordAndExpectError	*	closeableApp.applicationIsRunning
+
+*** Keyword ***	
+startApplicationWithJavaAgent
+	startWithJavaAgent	java ${APPLICATION}
+	
+startAppAndImportSomething
+	myAppLauncher.startApplication
+	myAppLauncher.importRemoteLibrary	SwingLibrary	WITH NAME	remoteLibraryInSuiteSetup
+
+remoteLibraryShouldBeImported	[arguments]	${library}
+	applicationShouldBeRunning	${library}
+	runKeyword	${library}.stopApplication
+	applicationShouldNotBeRunning	${library}
+
+applicationShouldBeRunning	[arguments]	${library}
+	${appIsRunning}=	runKeyword	${library}.applicationIsRunning
+	shouldBeTrue	${appIsRunning}	Application is not running.
+
+applicationShouldNotBeRunning	[arguments]	${library}
+	${appIsRunning}=	runKeyword	${library}.applicationIsRunning
+	shouldNotBeTrue	${appIsRunning}
+
+shouldFailInApproximatelyOneSecond	[arguments]	${expectedErrorMsg}	${keyword}	@{arguments}
+	shouldFailInApproximatelyTime	1	${expectedErrorMsg}	${keyword}	@{arguments}
+
+shouldFailInApproximatelyTwentySeconds	[arguments]	${expectedErrorMsg}	${keyword}	@{arguments}
+	shouldFailInApproximatelyTime	20	${expectedErrorMsg}	${keyword}	@{arguments}
+
+shouldFailInApproximatelyTime	[arguments]	${timeout}	${expectedErrorMsg}	${keyword}	@{arguments}
+	${startTime}=	getTime	epoch
+	runKeywordAndExpectError	${expectedErrorMsg}	${keyword}	@{arguments}
+	${endTime}=	getTime	epoch
+	${runTime}=	evaluate	${endTime} - ${startTime}
+	${stoppedBeforeTimeout}=	evaluate	${runTime} < ${timeout}
+	${stoppedWithinTreshold}=	evaluate	${runTime} > ${timeout} - 2
+	shouldNotBeTrue	${stoppedBeforeTimeout}
+	shouldBeTrue	${stoppedWithinTreshold}

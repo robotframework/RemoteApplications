@@ -1,0 +1,9 @@
+*** Setting ***
+
+Suite Setup	Start Simple Application	App1
+Resource	remoteapps_resource.tsv
+
+
+*** Test Cases ***
+Using Application In First Suite
+	Application Should Be In Use	App1

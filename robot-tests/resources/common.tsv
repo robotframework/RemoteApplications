@@ -1,0 +1,90 @@
+*** Settings ***
+variables	variables.py
+library	OperatingSystem
+library	PythonpathHelper.py
+Resource	webstart.tsv
+
+
+*** Variable ***
+
+${TEST APP DIR}	${CURDIR}${/}..${/}..${/}src${/}test${/}resources
+${JAR DIR}	${TEST APP DIR}${/}test-lib
+
+${APPLICATION}	org.robotframework.jvmconnector.mocks.MyApplication
+${JVM CONNECTOR LIB}	org.robotframework.jvmconnector.keyword.JvmconnectorKeywords
+${appLauncherScript}	${CURDIR}${/}..${/}..${/}src${/}main${/}python${/}ApplicationLauncher.py
+${policyFile}	${CURDIR}${/}allow_libraries.policy
+${javaPolicyFile}	%{HOME}${/}.java.policy
+
+${timeoutMsg}	Could not connect to application ${APPLICATION}
+
+
+*** Keyword ***
+
+startExternalApplicationX
+	startExternalApplicationAndImportLibraries	externalX	externalX
+
+startExternalApplicationY
+	startExternalApplicationAndImportLibraries	y	externalY
+
+startApplicationX
+	startApplicationAndImportLibraries	x	x
+
+startApplicationY
+	startApplicationAndImportLibraries	y	y
+
+startApplicationZ
+	startApplicationAndImportLibraries	z	z
+
+correctApplicationShouldBeInUse	[arguments]	${expectedName}
+	@{arguments}=	getArguments	
+	shouldBeEqual	${expectedName}	@{arguments}
+
+selectApplication	[arguments]	${name}
+	setLibrarySearchOrder	${name}Launcher	${JVM CONNECTOR LIB}${name}	JavaTools${name}
+	...	SwingLibrary${name}
+
+closeApplications	[arguments]	@{names}
+	:FOR	${name}	IN	@{names}
+		setLibrarySearchOrder	${name}Launcher
+		closeApplication
+
+startApplicationAndImportLibraries	[arguments]	${name}	${arguments}	${jvmArguments}=
+	setLibrarySearchOrder	${name}Launcher
+	startApplication	${arguments}	${jvmArguments}
+	importRemoteLibraries	${name}
+
+startExternalApplicationAndImportLibraries	[arguments]	${name}	${arguments}	${jvmArguments}=
+	setLibrarySearchOrder	${name}Launcher
+	${pythonPath}=	getPythonPath
+	startProcess	jython -Dpython.path=${pythonPath} ${jvmArguments} "${appLauncherScript}" ${APPLICATION} ${arguments}
+	applicationStarted
+	importRemoteLibraries	${name}
+
+importRemoteLibraries	[arguments]	${name}
+	importRemoteLibrary	SwingLibrary	WITH NAME	SwingLibrary${name}
+	importRemoteLibrary	${JVM CONNECTOR LIB}	WITH NAME	${JVM CONNECTOR LIB}${name}
+	importRemoteLibrary	JavaTools	WITH NAME	JavaTools${name}
+
+startWithJavaAgent	
+	[Arguments]	${command}	${java agent args}=
+	Variable Should Exist	\${JAVA_AGENT_JAR}
+	...	You should create jar with dependencies with command "mvn assembly:assembly" before running javaagent tests.
+	setEnvironmentVariable	JAVA_TOOL_OPTIONS	-javaagent:${JAVA_AGENT_JAR}=${java agent args}
+	checkPolicyFileAllowLibraryUse
+	startProcess	${command}
+	setEnvironmentVariable	JAVA_TOOL_OPTIONS	${EMPTY}
+
+closeAppStartedWithJavaAgent
+	[Arguments]	${lib}
+	comment	Two steps below fails test faster in case the env is not ok
+	Variable Should Exist	\${JAVA_AGENT_JAR}
+	checkPolicyFileAllowLibraryUse
+	runKeyword	${lib}.closeApplication
+
+checkPolicyFileAllowLibraryUse
+	${msg} =	Set Variable	You should copy ${policyFile} to ${javaPolicyFile} to allow library use with webstart.
+	File Should Exist	${javaPolicyFile}	${msg}
+	${content} =	Get File	${javaPolicyFile}
+	Should Contain	${content}	grant	${msg}	No values
+	

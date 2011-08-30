@@ -1,0 +1,58 @@
+*** Settings ***
+
+Library	RemoteApplications	Reconnect
+Resource	../resources/common.tsv
+Test Teardown	Close All Applications
+
+
+*** Variables ***
+${APP} =	Separate
+
+
+*** Test Cases ***
+
+Connect To Previously Started Application Using Start Application Keyword
+	Use Start Application Keyword To Connect	${APP}1
+	Application Should Be In Use	${APP}1
+
+Connect To Previously Started Application Using Application Started Keyword
+	Use Application Started Keyword To Connect	${APP}2
+	Application Should Be In Use	${APP}2
+
+Connect To Previously Started Applications Using Start Application Keyword
+	Use Start Application Keyword To Connect	${APP}3
+	Application Should Be In Use	${APP}3
+	Use Start Application Keyword To Connect	${APP}4
+	Application Should Be In Use	${APP}4
+	Switch To Application	${APP}3
+	Application Should Be In Use	${APP}3
+
+Connect To Previously Started Applications Using Application Started Keyword
+	Use Application Started Keyword To Connect	${APP}5
+	Application Should Be In Use	${APP}5
+	Use Application Started Keyword To Connect	${APP}6
+	Application Should Be In Use	${APP}6
+	Switch To Application	${APP}5
+	Application Should Be In Use	${APP}5
+
+Invalid Connected File
+	[tags]	invalid
+	Use Start Application Keyword To Connect	${APP}7
+	Application Should Be In Use	${APP}7
+
+
+*** Keywords ***
+Use Start Application Keyword To Connect
+	[Arguments]	${alias}
+	Start Application	${alias}	java -Dproperty.name=""ReStarted${alias}"" ${APPLICATION}	5 seconds
+	Take Libraries Into Use	${JVM CONNECTOR LIB}	JavaTools
+
+Use Application Started Keyword To Connect
+	[Arguments]	${alias}
+	Application Started	${alias}	5 seconds
+	Take Libraries Into Use	${JVM CONNECTOR LIB}	JavaTools
+
+Application Should Be In Use
+	[Arguments]	${expected name}
+	${actual name} =	Get System Property	property.name
+	Should Be Equal	${expected name}	${actual name}

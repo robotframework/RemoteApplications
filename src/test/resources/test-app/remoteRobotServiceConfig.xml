@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+        "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="swingLibrary" class="SwingLibrary" />
+  <bean id="swingService" class="org.robotframework.jvmconnector.server.CloseableRobotRmiService">
+    <constructor-arg>
+      <bean class="org.robotframework.jvmconnector.server.SimpleRobotRmiService">
+        <property name="library" ref="swingLibrary" />
+      </bean>
+    </constructor-arg>
+  </bean>
+
+	<bean id="serviceExporter" class="org.springframework.remoting.rmi.RmiServiceExporter">
+		<property name="serviceName" value="swingLibrary" />
+		<property name="serviceInterface" value="org.robotframework.jvmconnector.server.RobotRmiService" />
+		<property name="service" ref="swingService" />
+    <property name="registryPort" value="11099" />
+	</bean>
+</beans>

@@ -1,0 +1,39 @@
+*** Setting ***
+
+resource	applauncher_resource.tsv
+
+*** Test Case ***
+
+Using Multiple Applications
+	startApplicationX
+	startApplicationY
+	startApplicationZ
+	selectApplication	x
+	correctApplicationShouldBeInUse	x
+	selectApplication	y
+	correctApplicationShouldBeInUse	y
+	selectApplication	z
+	correctApplicationShouldBeInUse	z
+	selectApplication	y
+	correctApplicationShouldBeInUse	y
+	[teardown]	closeApplications	x	y	z
+
+External Startup
+	startExternalApplicationX
+	selectApplication	externalX
+	correctApplicationShouldBeInUse	externalX
+	[teardown]	closeApplications	externalX
+
+Mixed Use Of ApplicationLauncher And Externally Started Application
+	startExternalApplicationY
+	selectApplication	y
+	correctApplicationShouldBeInUse	externalY
+	closeApplications	y
+	startApplicationY
+	selectApplication	y
+	correctApplicationShouldBeInUse	y
+	closeApplications	y
+	startExternalApplicationY
+	selectApplication	y
+	correctApplicationShouldBeInUse	externalY
+	[teardown]	closeApplications	y

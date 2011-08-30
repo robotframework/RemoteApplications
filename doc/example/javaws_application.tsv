@@ -1,0 +1,24 @@
+*** Settings ***
+Library	RemoteApplications
+
+*** Variables ***
+${JNLP URL}	http://robotframework-javatools.googlecode.com/svn/examples/javaws-demo/demo/lib/test-application.jnlp
+${LIB DIRECTORY}	${CURDIR}${/}lib
+
+
+*** Test Cases ***
+Demonstration
+	Start Web Start Application	Demo Application
+	Use Application
+	Close Application
+
+*** Keywords ***
+Start Web Start Application
+	[Arguments]	${name}
+	Start Application	${name}	javaws ${JNLP URL}	120 seconds	${LIB DIRECTORY}
+	Take Library Into Use	SwingLibrary
+
+Use Application
+	Select From Main Menu	Test Menu|Show Dialog
+	selectDialog	Message
+	pushButton	OK

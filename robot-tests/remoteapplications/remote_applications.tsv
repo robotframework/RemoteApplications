@@ -1,0 +1,87 @@
+*** Setting ***
+
+Resource	remoteapps_resource.tsv
+Test Teardown	Close All Applications
+
+*** Test Cases ***
+
+Using Single Application
+	Start Simple Application	App1
+	Take Library Into Use	${JVM CONNECTOR LIB}
+	Application Should Be Running	App1
+
+Using Two Applications
+	Start Simple Application	App2
+	Application Should Be In Use	App2
+	Start Simple Application	App3
+	Application Should Be In Use	App3
+	Switch To Application	App2
+	Application Should Be In Use	App2
+
+Using Multiple Libraries
+	Start Simple Application	App4
+	Take Library Into Use	${JVM CONNECTOR LIB}
+	Take Library Into Use	JavaTools
+	Application Should Be In Use	App4
+	Application Should Be Running	App4
+
+Using Multiple Libraries With Multiple Apps
+	Start Simple Application	App1
+	Application Should Be In Use	App1
+	Application Should Be Running	App1
+	Start Simple Application	App2
+	Application Should Be In Use	App2
+	Application Should Be Running	App2
+	Switch To Application	App1
+	Application Should Be In Use	App1
+	Application Should Be Running	App1
+	Switch To Application	App2
+	Application Should Be In Use	App2
+	Application Should Be Running	App2
+
+Application With Startup Script Which Clears CLASSPATH
+	Start Application	Clean CLASSPATH App	python ${CURDIR}${/}start_simple_java_app.py
+	...	15 seconds	${JAR DIR}
+	Take Library Into Use	SwingLibrary
+	Select Window	Other App
+	Close Application
+
+Application Started With Command Changing Directory and Startup Script Which Clears CLASSPATH 
+	Start Application	CD and Clean CLASSPATH App	cd ${CURDIR} && python start_simple_java_app.py
+	...	15 seconds	${JAR DIR}
+	Take Library Into Use	SwingLibrary
+	Select Window	Other App
+	Close Application
+
+
+Close Active Application
+	Take Applications Into Use	ClosedApp
+	Close Application
+	Application Should Not Be Running	ClosedApp
+
+Close Application With Name
+	Take Applications Into Use	ClosedApp1
+	Close Application	ClosedApp1
+	Application Should Not Be Running	ClosedApp1
+
+Close Applications
+	Take Applications Into Use	ClosedApp1	ClosedApp2
+	Close All Applications
+	Application Should Not Be Running	ClosedApp1
+	Application Should Not Be Running	ClosedApp2
+
+Closed Active When Multiple Applications
+	Take Applications Into Use	ClosedApp3	ClosedApp4
+	Close Application
+	Application Should Not Be Running	ClosedApp4
+	Switch To Application	ClosedApp3
+	Application Should Be In Use	ClosedApp3
+
+
+*** Keywords ***
+Take Applications Into Use
+	[Arguments]	@{application names}
+	:FOR	${name}	IN	@{application names}
+		Start Simple Application	${name}
+		Application Should Be In Use	${name}
+		Application Should Be Running	${name}

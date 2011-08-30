@@ -1,0 +1,14 @@
+*** Setting ***
+Resource	remoteapps_resource.tsv
+
+*** Test Cases ***
+Start Applications
+	:FOR	${i}	IN RANGE	1	8
+		Start Application	Separate${i}
+
+*** Keywords ***
+Start Application
+	[Arguments]	${name}
+	Start Simple Application	${name}
+	Take Libraries Into Use	${JVM CONNECTOR LIB}	JavaTools
+	Application Should Be In Use	${name}

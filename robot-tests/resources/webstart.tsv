@@ -1,0 +1,22 @@
+*** Setting ***
+library	org.robotframework.jvmconnector.util.FileServer	WITH NAME	FileServer
+
+*** Variable ***
+${codeBase}	http://localhost:14563/test-app
+${jnlpWithMainClassUrl}	${codeBase}/test-application.jnlp
+${jnlpWithoutMainClassUrl}	${codeBase}/test-application-withoutmainclass.jnlp
+${jnlpWithMainAttribute}	${codeBase}/test-application-with-main-attribute.jnlp
+${jnlpWithSsl}	https://localhost:14564/test-app/test-application.jnlp
+
+
+*** Keyword ***
+
+startWebstartService
+	FileServer.start	${TEST APP DIR}
+
+stopWebstartService
+	FileServer.stop
+
+setTrustStore
+	JavaTools.setSystemProperty	javax.net.ssl.trustStore	${TEST APP DIR}${/}jssecacerts
+	JavaTools.setSystemProperty	javax.net.ssl.trustStorePassword	changeit

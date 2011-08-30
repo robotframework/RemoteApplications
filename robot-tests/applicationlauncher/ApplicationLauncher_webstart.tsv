@@ -1,0 +1,92 @@
+*** Setting ***
+library	Dependencies.py
+resource	applauncher_resource.tsv
+library	JavaTools
+library	JvmconnectorKeywords
+library	JnlpEnhancer	${TEMPDIR}/launcher.txt	${JAR DIR}
+library	ApplicationLauncher	javaagent	10 seconds	WITH NAME	javaagentLauncher
+suiteSetup	startWebstartService
+suiteTeardown	stopWebstartService
+testTimeout	30 seconds
+
+
+*** Test Case ***
+
+Starting Webstart Application With Java Agent
+	startWebstartWithJavaAgent	javaagent	javaws ${jnlpWithMainClassUrl}
+	waitUntilKeywordSucceeds	30	2	selectMainWindow
+	[teardown]	closeAppStartedWithJavaAgent	javaagentLauncher
+
+Starting Webstart Application From Webstart Application
+	startWebstartWithJavaAgent	javaagent	javaws ${jnlpWithMainClassUrl}
+	waitUntilKeywordSucceeds	30	2	selectMainWindow
+	pushButton	Start javaws application
+	importLibrary	ApplicationLauncher	javaagent2	10 seconds	WITH NAME	javaagentLauncher2
+	javaagentLauncher2.applicationStarted
+	importRemoteLibraries	javaagent2
+	selectApplication	javaagent2
+	selectMainWindow
+	javaagentLauncher2.closeApplication
+	[teardown]	closeAppStartedWithJavaAgent	javaagentLauncher
+
+Works With Local Jnlp
+	${localJnlp}=	setVariable	${CURDIR}${/}..${/}..${/}src${/}test${/}resources${/}test-app${/}test-application.jnlp
+	applicationLauncherLaunchesJavaWebstartApplication	${localJnlp}	localApp	Test App
+
+ApplicationLauncher Launches Java Webstart Application
+	applicationLauncherLaunchesJavaWebstartApplication	${jnlpWithMainClassUrl}	testApp	Test App
+
+ApplicationLauncher Launches Java Webstart Application When No Main Class Attribute In Jnlp
+	applicationLauncherLaunchesJavaWebstartApplication	${jnlpWithoutMainClassUrl}	testAppWithoutMainUrl	Other App
+
+ApplicationLauncher Works With Main Attribute
+	applicationLauncherLaunchesJavaWebstartApplication	${jnlpWithMainAttribute}	testAppWithMainAttribute	Other App
+
+ApplicationLauncher Works With Https
+	setTrustStore
+	applicationLauncherLaunchesJavaWebstartApplication	${jnlpWithSsl}	testAppWithSsl	Test App
+
+Can Be Launched Externally
+	${pathToJnlp}=	JnlpEnhancer.createRmiEnhancedJnlp	${jnlpWithMainClassUrl}
+	startProcess	javaws ${pathToJnlp}
+	importLibrary	ApplicationLauncher	${pathToJnlp}	60	${JAR DIR}	WITH NAME	externalLauncher
+	setLibrarySearchOrder	externalLauncher
+	applicationStarted
+	importRemoteLibraries	external
+	selectApplication	external
+	selectMainWindow
+	closeApplication
+
+Importing Application Launcher With URL And Without Libdir Fails
+	runKeywordAndExpectError	*Library directory required for test dependencies.*	importLibrary	ApplicationLauncher	${jnlpWithMainClassUrl}
+
+Importing Application Launcher With Unexisting Libdir Fails
+	runKeywordAndExpectError	*Library directory '/lol' doesn't exist.*	importLibrary	ApplicationLauncher	${jnlpWithMainClassUrl}		/lol
+
+Creating Enhanced Jnlp With Empty Directory Fails
+	${emptyDir}=	setVariable	${TEMPDIR}${/}empty_directory
+	createDirectory	${emptyDir}
+	importLibrary	JnlpEnhancer	${TEMPDIR}${/}launcher.txt	${emptyDir}	WITH NAME	emptyEnhancer
+	runKeywordAndExpectError	*${emptyDir} doesn't contain jvmconnector jar.	emptyEnhancer.createRmiEnhancedJnlp	${jnlpWithMainClassUrl}
+
+*** Keyword ***
+
+applicationLauncherLaunchesJavaWebstartApplication	[arguments]	${jnlpUrl}	${name}	${windowTitle}
+	importApplicationLauncher	${jnlpUrl}	${name}
+	startApplicationAndImportLibraries	${name}	${EMPTY}
+	selectApplication	${name}
+	waitUntilKeywordSucceeds	30	2	selectWindow	${windowTitle}
+	closeApplication
+
+importApplicationLauncher	[arguments]	${jnlpUrl}	${name}
+	importLibrary	ApplicationLauncher	${jnlpUrl}		${JAR DIR}	WITH NAME	${name}Launcher
+	selectApplication	${name}
+
+startWebstartWithJavaAgent	[arguments]	${name}	${command}
+	copyDependenciesTo	${TEMPDIR}${/}dependencies
+	startWithJavaAgent	${command}	${TEMPDIR}${/}dependencies
+	setLibrarySearchOrder	${name}Launcher
+	applicationStarted
+	importRemoteLibraries	${name}
+	selectApplication	${name}
+	

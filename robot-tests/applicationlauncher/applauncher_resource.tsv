@@ -1,0 +1,6 @@
+*** Setting ***
+Resource	../resources/common.tsv
+library	ApplicationLauncher	${APPLICATION}	WITH NAME	xLauncher
+library	ApplicationLauncher	${APPLICATION}	WITH NAME	yLauncher
+library	ApplicationLauncher	${APPLICATION}	WITH NAME	zLauncher
+library	ApplicationLauncher	externalX	WITH NAME	externalXLauncher
