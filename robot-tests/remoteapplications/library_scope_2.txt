@@ -1,0 +1,8 @@
+*** Settings ***
+Resource        remoteapps_resource.txt
+
+*** Test Cases ***
+Using Application In Second Suite
+    Application Should Be In Use  App1
+    [Teardown]  Close Application
+

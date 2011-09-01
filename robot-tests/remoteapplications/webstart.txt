@@ -1,0 +1,34 @@
+*** Settings ***
+Suite Setup     startWebstartService
+Suite Teardown  stopWebstartService
+Resource        remoteapps_resource.txt
+
+*** Test Cases ***
+Starting Webstart Application
+    Start Web Start Application  Web Start 1
+    Select Application's Main Window
+    [Teardown]  Close  Web Start 1
+
+Starting Webstart Application From Webstart Application
+    Start Web Start Application  Web Start 1
+    Select Application's Main Window
+    Push Button  Start javaws application
+    Application Started  Web Start 2
+    Select Application's Main Window
+    [Teardown]  Close Both Webstart Applications
+
+*** Keywords ***
+Select Application's Main Window
+    Take Library Into Use  SwingLibrary
+    waitUntilKeywordSucceeds  15  0.2  selectMainWindow
+
+Close Both Webstart Applications
+    Close  Web Start 2
+    Close  Web Start 1
+
+Close
+    [Arguments]  ${name}
+    Switch To Application  ${name}
+    Run Keyword And Ignore Error  Push Button  systemExitButton
+    Close Application  ${name}
+

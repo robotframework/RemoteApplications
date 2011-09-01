@@ -1,9 +1,0 @@
-*** Setting ***
-
-Resource	remoteapps_resource.tsv
-
-
-*** Test Cases ***
-Using Application In Second Suite
-	Application Should Be In Use	App1
-	[Teardown]	Close Application
