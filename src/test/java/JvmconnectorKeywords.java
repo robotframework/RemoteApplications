@@ -1,2 +1,2 @@
-public class JvmconnectorKeywords extends org.robotframework.jvmconnector.keyword.JvmconnectorKeywords {
+public class JvmconnectorKeywords extends org.robotframework.remoteapplications.keyword.JvmconnectorKeywords {
 }

@@ -7,8 +7,8 @@ Resource        webstart.txt
 *** Variables ***
 ${TEST APP DIR}  ${CURDIR}${/}..${/}..${/}src${/}test${/}resources
 ${JAR DIR}  ${TEST APP DIR}${/}test-lib
-${APPLICATION}  org.robotframework.jvmconnector.mocks.MyApplication
-${JVM CONNECTOR LIB}  org.robotframework.jvmconnector.keyword.JvmconnectorKeywords
+${APPLICATION}  org.robotframework.remoteapplications.mocks.MyApplication
+${JVM CONNECTOR LIB}  org.robotframework.remoteapplications.keyword.JvmconnectorKeywords
 ${appLauncherScript}  ${CURDIR}${/}..${/}..${/}src${/}main${/}python${/}ApplicationLauncher.py
 ${policyFile}  ${CURDIR}${/}allow_libraries.policy
 ${javaPolicyFile}  %{HOME}${/}.java.policy

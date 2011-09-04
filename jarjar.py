@@ -11,7 +11,7 @@ def jarjar_dist_jar():
     curdir = os.path.dirname(os.path.abspath(__file__))
     targetdir = os.path.join(curdir, 'target')
     jarpath = glob.glob(os.path.join(targetdir,
-                                    'jvmconnector-*-jar-with-dependencies.jar'))[0]
+                                    'remoteapplications-*-jar-with-dependencies.jar'))[0]
     mf_path = extract_manifest(jarpath, targetdir)
     jarjar(curdir, jarpath)
     tmpdir = os.path.join(targetdir, 'tmp')
@@ -44,7 +44,7 @@ def extract_manifest(jarpath, targetdir):
 
 def rmi_compile(jarpath, tmpdir):
     unzip_file_into_dir(jarpath, tmpdir)
-    class_name = 'org.robotframework.jvmconnector.org.springframework.remoting.rmi.RmiInvocationWrapper'
+    class_name = 'org.robotframework.remoteapplications.org.springframework.remoting.rmi.RmiInvocationWrapper'
     call(['rmic', '-verbose', '-classpath', tmpdir, '-d', tmpdir, class_name])
     call(['rmic', '-verbose', '-iiop', '-always', '-classpath', tmpdir, '-d', 
           tmpdir, class_name])

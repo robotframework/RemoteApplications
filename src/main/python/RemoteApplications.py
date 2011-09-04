@@ -31,13 +31,13 @@ except ImportError:
 from robot.libraries.BuiltIn import BuiltIn
 from robot.libraries.OperatingSystem import OperatingSystem
 
-from org.robotframework.jvmconnector.org.springframework.beans.factory import BeanCreationException
-from org.robotframework.jvmconnector.org.springframework.remoting import RemoteAccessException
-from org.robotframework.jvmconnector.org.springframework.remoting.rmi import RmiProxyFactoryBean
+from org.robotframework.remoteapplications.org.springframework.beans.factory import BeanCreationException
+from org.robotframework.remoteapplications.org.springframework.remoting import RemoteAccessException
+from org.robotframework.remoteapplications.org.springframework.remoting.rmi import RmiProxyFactoryBean
 
-from org.robotframework.jvmconnector.client import RobotRemoteLibrary
-from org.robotframework.jvmconnector.server import RmiInfoStorage, LibraryImporter
-from org.robotframework.jvmconnector.common import DataBasePaths
+from org.robotframework.remoteapplications.client import RobotRemoteLibrary
+from org.robotframework.remoteapplications.server import RmiInfoStorage, LibraryImporter
+from org.robotframework.remoteapplications.common import DataBasePaths
 
 class InvalidURLException(Exception):
     pass
@@ -334,9 +334,9 @@ class RemoteApplicationsConnector:
     Web Start applications and standalone java applications. It is taken into
     use by setting the _JAVA_TOOL_OPTIONS_ environment variable with value:
 
-    _-javaagent:"${jvmconnector.jar}"="${testing_dependencies_dir}"[:PORT=${port}]_
+    _-javaagent:"${remoteapplications.jar}"="${testing_dependencies_dir}"[:PORT=${port}]_
 
-    where _${jvmconnector.jar}_ is the path to the jvmconnector.jar and
+    where _${remoteapplications.jar}_ is the path to the remoteapplications.jar and
     _${testing_dependencies_dir}_ is the path to the directory containing the
     test library jars. The optional _:PORT=${port}_ setting can be provided,
     where the _:PORT=_ is separator, and _${port}_ defines the port number where
@@ -344,15 +344,15 @@ class RemoteApplicationsConnector:
 
     Examples of the setting command:
 
-    _-javaagent:"jvmconnector-1.0.jar"="c:\\some\\testing\\lib"_
+    _-javaagent:"remoteapplications-1.0.jar"="c:\\some\\testing\\lib"_
 
-    _-javaagent:"~/some/testing/lib/jvmconnector-1.0.jar"="~/some/testing/lib":PORT=12345_
+    _-javaagent:"~/some/testing/lib/remoteapplications-1.0.jar"="~/some/testing/lib":PORT=12345_
 
     When Robot Agent is used (RemoteApplications uses it internally) and the
     port parameter is not given, rmi_url from where the testing capabilities
     can be accessed is written to file
-    `%HOME/.robotframework/jvmconnector/launched.txt` or to file
-    `%APPDATA%\\RobotFramework\\jvmconnector\\launched.txt` on Windows. In case
+    `%HOME/.robotframework/remoteapplications/launched.txt` or to file
+    `%APPDATA%\\RobotFramework\\remoteapplications\\launched.txt` on Windows. In case
     application is started on remote machine, this rmi_url needs to be given to
     `Application Started` keyword. When `Application Started` keyword
     establishes connection to the application, `launched.txt` is cleared and the
@@ -368,18 +368,18 @@ class RemoteApplicationsConnector:
     application's startup script clears the CLASSPATH or if application is
     started using Java Web Start, setting CLASSPATH environment variable is not
     enough. In such situations the test libraries need to be included into the
-    jvmconnector.jar file's classpath. This can be achieved by updating the
-    jvmconnector.jar file's MANIFEST.MF file with command:
+    remoteapplications.jar file's classpath. This can be achieved by updating the
+    remoteapplications.jar file's MANIFEST.MF file with command:
 
-    `jar ufm jvmconnector.jar manifest.txt`
+    `jar ufm remoteapplications.jar manifest.txt`
 
     For example, insert following line to the manifest.txt:
 
     Class-Path: ../relative/path/to/test_library.jar path/to/another_test_library.jar
 
     This example entry in the manifest.txt includes two test library jars to the
-    jvmconnector.jar file's MANIFEST.MF. Paths to the test libraries have to be
-    relative to the jvmconnector.jar and line needs to end with new line
+    remoteapplications.jar file's MANIFEST.MF. Paths to the test libraries have to be
+    relative to the remoteapplications.jar and line needs to end with new line
     character. See more from
     http://java.sun.com/docs/books/tutorial/deployment/jar/downman.html
     """
@@ -488,10 +488,10 @@ class RemoteApplicationsConnector:
                 premain_class = main_attributes.getValue('Premain-Class')
             except (ZipException, IOException, FileNotFoundException):
                 continue
-            if premain_class == 'org.robotframework.jvmconnector.agent.RmiServiceAgent':
+            if premain_class == 'org.robotframework.remoteapplications.agent.RmiServiceAgent':
                 print "*TRACE* Found jvm_connector jar '%s'" % jar_file
                 return os.path.abspath(jar_file)
-        raise RuntimeError("Could not find jvmconnector jarfile from CLASSPATH")
+        raise RuntimeError("Could not find remoteapplications jarfile from CLASSPATH")
 
     def _get_jars_from_classpath(self):
         jars = []

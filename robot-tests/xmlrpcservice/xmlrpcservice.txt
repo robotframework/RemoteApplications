@@ -13,6 +13,6 @@ Remote Library Has Keyword Argument Info
 
 *** Keywords ***
 startApplicationAndImportRemote
-    startProcess  java org.robotframework.jvmconnector.mocks.XmlRpcTestApplication
+    startProcess  java org.robotframework.remoteapplications.mocks.XmlRpcTestApplication
     importLibrary  Remote
 

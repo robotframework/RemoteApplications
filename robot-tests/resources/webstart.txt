@@ -1,5 +1,5 @@
 *** Settings ***
-Library         org.robotframework.jvmconnector.util.FileServer  WITH NAME  FileServer
+Library         org.robotframework.remoteapplications.util.FileServer  WITH NAME  FileServer
 
 *** Variables ***
 ${codeBase}  http://localhost:14563/test-app

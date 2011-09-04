@@ -2,7 +2,7 @@
 Suite Setup     Run Tests  _start_applications
 Suite Teardown  Remove Connected File
 Library         OperatingSystem
-Library         org.robotframework.jvmconnector.common.DataBasePaths
+Library         org.robotframework.remoteapplications.common.DataBasePaths
 
 *** Variables ***
 ${RUNNER}  ${CURDIR}${/}..${/}..${/}run_tests.py

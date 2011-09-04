@@ -22,7 +22,7 @@ def main():
 
 def _copy_libraries():
     shutil.copy(REMOTE_LIBRARY, LIB)
-    jars = glob.glob(os.path.join(TARGET, 'jvmconnector-*-with-dependencies.jar'))
+    jars = glob.glob(os.path.join(TARGET, 'remotepplications-*-with-dependencies.jar'))
     shutil.copy(sorted(jars)[-1], LIB)
 
 def _run_tests():

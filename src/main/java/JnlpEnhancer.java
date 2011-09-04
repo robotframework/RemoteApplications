@@ -18,7 +18,7 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
-public class JnlpEnhancer extends org.robotframework.jvmconnector.launch.jnlp.JnlpEnhancer {
+public class JnlpEnhancer extends org.robotframework.remoteapplications.launch.jnlp.JnlpEnhancer {
     public JnlpEnhancer(String pathToRmiStorage, String resourceDir) {
         super(resourceDir);
         disableHostNameVerifier();

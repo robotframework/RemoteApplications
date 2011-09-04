@@ -1,14 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.robotframework</groupId>
-  <artifactId>jvmconnector</artifactId>
+  <artifactId>remoteapplications</artifactId>
   <version>1.1-SNAPSHOT</version>
   <packaging>jar</packaging>
-  <name>jvmconnector</name>
+  <name>remoteapplications</name>
   <properties>
-        <agentClass>org.robotframework.jvmconnector.agent.RmiServiceAgent</agentClass>
+        <agentClass>org.robotframework.remoteapplications.agent.RmiServiceAgent</agentClass>
   </properties>
-  
+
   <dependencies>
     <dependency>
       <groupId>commons-httpclient</groupId>
@@ -19,24 +19,24 @@
       <groupId>org.apache.xmlrpc</groupId>
       <artifactId>xmlrpc-server</artifactId>
       <version>3.1.2</version>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>org.apache.xmlrpc</groupId>
       <artifactId>xmlrpc-client</artifactId>
       <version>3.1.2</version>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>org.robotframework</groupId>
       <artifactId>swinglibrary</artifactId>
       <version>0.13</version>
       <scope>test</scope>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty</artifactId>
       <version>6.1.11</version>
       <scope>test</scope>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -132,7 +132,7 @@
       <artifactId>commons-io</artifactId>
       <version>1.4</version>
       <scope>compile</scope>
-    </dependency> 
+    </dependency>
     <dependency>
       <groupId>jretrofit</groupId>
       <artifactId>jretrofit</artifactId>
@@ -147,7 +147,7 @@
   </dependencies>
 
   <build>
-    <plugins> 
+    <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-eclipse-plugin</artifactId>
@@ -268,11 +268,6 @@
       <url>http://www.laughingpanda.org/maven2</url>
     </repository>
   </repositories>
-
-  <scm>
-    <connection>scm:svn:https://robotframework-javatools.googlecode.com/svn/jvmconnector/tags/jvmconnector-1.0-SNAPSHOT</connection>
-    <developerConnection>scm:svn:https://robotframework-javatools.googlecode.com/svn/jvmconnector/tags/jvmconnector-1.0-SNAPSHOT</developerConnection>
-  </scm>
 
   <distributionManagement>
     <repository>
