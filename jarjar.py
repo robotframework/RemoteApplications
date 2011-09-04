@@ -3,7 +3,6 @@
 import glob
 import os
 import subprocess
-import sys
 import zipfile
 import shutil
 
@@ -16,7 +15,7 @@ def jarjar_dist_jar():
     jarjar(curdir, jarpath)
     tmpdir = os.path.join(targetdir, 'tmp')
     if os.path.exists(tmpdir):
-        shutil.rmtree(tmpdir) 
+        shutil.rmtree(tmpdir)
     rmi_compile(jarpath, tmpdir)
     rejar(jarpath, mf_path, tmpdir)
     shutil.rmtree(tmpdir)
@@ -46,7 +45,7 @@ def rmi_compile(jarpath, tmpdir):
     unzip_file_into_dir(jarpath, tmpdir)
     class_name = 'org.robotframework.remoteapplications.org.springframework.remoting.rmi.RmiInvocationWrapper'
     call(['rmic', '-verbose', '-classpath', tmpdir, '-d', tmpdir, class_name])
-    call(['rmic', '-verbose', '-iiop', '-always', '-classpath', tmpdir, '-d', 
+    call(['rmic', '-verbose', '-iiop', '-always', '-classpath', tmpdir, '-d',
           tmpdir, class_name])
 
 def unzip_file_into_dir(file, dir):
