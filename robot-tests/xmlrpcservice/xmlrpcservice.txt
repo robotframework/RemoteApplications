@@ -8,9 +8,6 @@ Remote Library Uses XmlRpc Service
     ${retVal}=  concatenatingKeyword  foo  bar
     shouldBeEqual  foobar  ${retVal}
 
-Remote Library Has Keyword Argument Info
-    runKeywordAndExpectError  Keyword 'Remote.Concatenating Keyword' expected at least 2 arguments, got 0.  concatenatingKeyword
-
 *** Keywords ***
 startApplicationAndImportRemote
     startProcess  java org.robotframework.remoteapplications.mocks.XmlRpcTestApplication
