@@ -3,7 +3,7 @@ Resource        remoteapps_resource.txt
 
 *** Test Cases ***
 Start Applications
-    : FOR  ${i}  IN RANGE  1  4
+    : FOR  ${i}  IN RANGE  1  6
     \  Start Application  Separate${i}
 
 *** Keywords ***
