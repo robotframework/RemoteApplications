@@ -17,6 +17,7 @@ def jarjar_dist_jar():
     if os.path.exists(tmpdir):
         shutil.rmtree(tmpdir)
     rmi_compile(jarpath, tmpdir)
+    add_python_files(tmpdir)
     rejar(jarpath, mf_path, tmpdir)
     shutil.rmtree(tmpdir)
     os.remove(mf_path)
@@ -58,6 +59,9 @@ def unzip_file_into_dir(file, dir):
             outfile = open(os.path.join(dir, name), 'wb')
             outfile.write(zfobj.read(name))
             outfile.close()
+
+def add_python_files(targetdir):
+    shutil.copy(os.path.join('src', 'main', 'python', 'RemoteApplications.py'), targetdir)
 
 def rejar(jarpath, mf_path, dir):
     call(['jar', 'cfm', jarpath, mf_path, '-C', dir, '.'])
