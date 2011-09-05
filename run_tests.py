@@ -10,7 +10,7 @@ from tempfile import gettempdir
 base = os.path.abspath(os.path.normpath(os.path.split(sys.argv[0])[0]))
 python_main = os.path.join(base, 'src', 'main', 'python')
 python_test = os.path.join(base, 'src', 'test', 'python')
-testfile = re.compile('^test_.*\.py$', re.IGNORECASE)          
+testfile = re.compile('^test_.*\.py$', re.IGNORECASE)
 
 def get_tests(directory):
     sys.path.append(directory)
@@ -39,7 +39,7 @@ def sh(command):
     return output
 
 def add_src_and_test_to_pythonpath():
-    for path in [ python_main, python_test ]:
+    for path in [ get_jvmconnector_jar(), python_test ]:
         if path not in sys.path:
             sys.path.insert(0, path)
     os.environ['PYTHONPATH'] = os.pathsep.join(sys.path)
