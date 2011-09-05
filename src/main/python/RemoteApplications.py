@@ -23,11 +23,7 @@ from java.io import IOException, FileNotFoundException
 from robot.utils import eq, normalize, NormalizedDict, seq2str, timestr_to_secs
 from robot.running import NAMESPACES
 from robot.running.namespace import IMPORTER
-try:
-    from robot.running.testlibraries import TestLibrary
-except ImportError:
-    #Available only from RF 2.5 onwards.
-    pass
+from robot.running.testlibraries import TestLibrary
 from robot.libraries.BuiltIn import BuiltIn
 from robot.libraries.OperatingSystem import OperatingSystem
 
@@ -41,6 +37,53 @@ from org.robotframework.remoteapplications.common import DataBasePaths
 
 class InvalidURLException(Exception):
     pass
+
+
+class _RobotImporterWrapper(object):
+    def remove_library(self, name, args):
+        lib = TestLibrary(name, args, None, create_handlers=False)
+        key = (name, lib.positional_args, lib.named_args)
+        self._remove_library(key)
+
+
+class Robot26ImporterWrapper(_RobotImporterWrapper):
+    def _remove_library(self, key):
+        if key in IMPORTER._library_cache:
+            index = IMPORTER._library_cache._keys.index(key)
+            IMPORTER._library_cache._keys.pop(index)
+            IMPORTER._library_cache._items.pop(index)
+
+
+class OldRobotImporterWrapper(_RobotImporterWrapper):
+    def _remove_library(self, key):
+        if IMPORTER._libraries.has_key(key):
+            index = IMPORTER._libraries._keys.index(key)
+            IMPORTER._libraries._keys.pop(index)
+            IMPORTER._libraries._libs.pop(index)
+
+
+class RobotLibraryImporter(object):
+    """A class for manipulating Robot Framework library imports during runtime"""
+
+    def re_import_library(self, name, args):
+        """Re-imports library with given `name` and `args`.
+
+        First ensures that the library can be re-imported by going to
+        Robot internals and removing the library from cache.
+        """
+        self._remove_lib_from_current_namespace(name)
+        self._import_wrapper().remove_library(name, args)
+        BuiltIn().import_library(name, *args)
+
+    def _import_wrapper(self):
+        if hasattr(IMPORTER, '_library_cache'):
+            return Robot26ImporterWrapper()
+        return OldRobotImporterWrapper()
+
+    def _remove_lib_from_current_namespace(self, name):
+        testlibs = NAMESPACES.current._testlibs
+        if testlibs.has_key(name):
+            del(testlibs[name])
 
 
 class RemoteLibrary:
@@ -393,6 +436,7 @@ class RemoteApplicationsConnector:
         self._kws = [ attr for attr in dir(self) if not attr.startswith('_') \
                      and attr not in ignore_methods ]
         self._use_previously_launched = False
+        self._robot_namespace_bridge = RobotLibraryImporter()
 
     def _initialize(self):
         self._apps = Applications()
@@ -576,42 +620,12 @@ class RemoteApplicationsConnector:
         """
         self._check_active_app()
         self._active_app.take_libraries_into_use(*library_names)
-        self._update_keywords_to_robot()
+        args = self._use_previously_launched and [self._use_previously_launched] or []
+        self._robot_namespace_bridge.re_import_library('RemoteApplications', args)
 
     def _check_active_app(self):
         if self._active_app is None:
             raise RuntimeError("No application selected")
-
-    def _update_keywords_to_robot(self):
-        # TODO: When Robot has better support for reimporting libraries,
-        # update following code to use that approach. See RF issue 293.
-        lib_name = 'RemoteApplications'
-        self._remove_lib_from_current_namespace(lib_name)
-        args = self._use_previously_launched and [self._use_previously_launched] or []
-        self._remove_lib_from_importer(lib_name, args)
-        BuiltIn().import_library(lib_name, *args)
-
-    def _remove_lib_from_current_namespace(self, name):
-        testlibs = NAMESPACES.current._testlibs
-        if testlibs.has_key(name):
-            del(testlibs[name])
-
-    def _remove_lib_from_importer(self, name, args):
-        if (name, tuple(args)) in IMPORTER._library_cache:
-            del(IMPORTER._library_cache[(name, tuple(args))])
-        elif (name, args) in IMPORTER._library_cache:
-                self._delete_item_from_cache((name, args))
-        else:
-            #RF 2.5 support
-            lib = TestLibrary(name, args, None, create_handlers=False)
-            key = (name, lib.positional_args, lib.named_args)
-            if key in IMPORTER._library_cache:
-                self._delete_item_from_cache(key)
-
-    def _delete_item_from_cache(self, key):
-        index = IMPORTER._library_cache._keys.index(key)
-        IMPORTER._library_cache._keys.pop(index)
-        IMPORTER._library_cache._items.pop(index)
 
     def take_library_into_use(self, library_name):
         """Takes given library into use.
@@ -763,3 +777,5 @@ class RemoteApplications:
 
     def get_keyword_documentation(self, name):
         return self._connector.get_keyword_documentation(name)
+
+
