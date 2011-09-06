@@ -2,7 +2,7 @@
 Library         RemoteApplications
 
 *** Variables ***
-${JNLP URL}  http://robotframework-javatools.googlecode.com/svn/examples/javaws-demo/demo/lib/test-application.jnlp
+${JNLP URL}  http://robotframework-remoteapplications.googlecode.com/hg/src/test/resources/test-app/test-application.jnlp
 ${LIB DIRECTORY}  ${CURDIR}${/}..${/}lib
 
 *** Test Cases ***
