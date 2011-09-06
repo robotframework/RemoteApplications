@@ -12,7 +12,6 @@ DOC = os.path.join(_ROOT, 'doc')
 EXAMPLE = os.path.join(DOC, 'example')
 TARGET = os.path.join(_ROOT, 'target')
 LIB = os.path.join(EXAMPLE, 'lib')
-REMOTE_LIBRARY = os.path.join(_ROOT, 'src', 'main', 'python', 'RemoteApplications.py')
 
 
 def main():
@@ -21,7 +20,6 @@ def main():
     _zip_example()
 
 def _copy_libraries():
-    shutil.copy(REMOTE_LIBRARY, LIB)
     jars = glob.glob(os.path.join(TARGET, 'remoteapplications-*-with-dependencies.jar'))
     shutil.copy(sorted(jars)[-1], LIB)
 
@@ -33,7 +31,9 @@ def _run_tests():
 
 def _run():
     runner = os.path.join(EXAMPLE, 'run.py')
-    return subprocess.call(['python', runner, EXAMPLE])
+    tests = os.path.join(EXAMPLE, 'robot-tests')
+    return subprocess.call(['python', runner, tests],
+                           shell=os.name=='nt')
 
 def _zip_example():
     zip_target_path = os.path.join(TARGET, 'remote_applications_example.zip')

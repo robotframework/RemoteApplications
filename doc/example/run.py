@@ -2,6 +2,7 @@
 
 import os
 import sys
+import subprocess
 from glob import glob
 
 def main(args):
@@ -9,9 +10,9 @@ def main(args):
     lib = os.path.join(dir, 'lib')
     jars = glob(os.path.join(lib, '*.jar'))
     os.environ['CLASSPATH'] = os.pathsep.join(jars)
-    os.environ['PYTHONPATH'] = lib
     outputdir = os.path.join(dir, 'results')
-    rc = os.system('jybot --loglevel TRACE --outputdir "%s" %s' % (outputdir, ' '.join(args))) >> 8
+    rc = subprocess.call(['jybot', '--outputdir', outputdir] + args,
+                         shell=os.name=='nt')
     sys.exit(rc)
 
 if __name__ == '__main__':
