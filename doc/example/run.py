@@ -11,9 +11,12 @@ def main(args):
     jars = glob(os.path.join(lib, '*.jar'))
     os.environ['CLASSPATH'] = os.pathsep.join(jars)
     outputdir = os.path.join(dir, 'results')
-    rc = subprocess.call(['jybot', '--outputdir', outputdir] + args,
-                         shell=os.name=='nt')
-    sys.exit(rc)
+    return subprocess.call(['jybot', '--outputdir', outputdir] + args,
+                            shell=os.name=='nt')
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    args = sys.argv[1:]
+    if not args:
+        print "Usage: run.py [robot options] datasources"
+        sys.exit(1)
+    sys.exit(main(args))
