@@ -12,6 +12,7 @@ DOC = os.path.join(_ROOT, 'doc')
 EXAMPLE = os.path.join(DOC, 'example')
 TARGET = os.path.join(_ROOT, 'target')
 LIB = os.path.join(EXAMPLE, 'lib')
+TESTS = os.path.join(EXAMPLE, 'robot-tests')
 
 
 def main():
@@ -31,14 +32,13 @@ def _run_tests():
 
 def _run():
     runner = os.path.join(EXAMPLE, 'run.py')
-    tests = os.path.join(EXAMPLE, 'robot-tests')
-    return subprocess.call(['python', runner, tests],
+    return subprocess.call(['python', runner, TESTS],
                            shell=os.name=='nt')
 
 def _zip_example():
-    zip_target_path = os.path.join(TARGET, 'remote_applications_example.zip')
+    zip_target_path = os.path.join(TARGET, 'remoteapplications_example.zip')
     zip = zipfile.ZipFile(zip_target_path, 'w')
-    paths = _get_paths([(LIB, '*.jar'), (LIB, '*.py'), (EXAMPLE, '*.*')])
+    paths = _get_paths([(LIB, '*.jar'), (TESTS, '*.*'), (EXAMPLE, '*.*')])
     print 'Zipping files...'
     for path in paths:
     	path_in_zip_file = path.replace(DOC, '')
