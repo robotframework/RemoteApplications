@@ -1,9 +1,6 @@
 rule com.thoughtworks.** org.robotframework.remoteapplications.@0
 rule edu.emory.** org.robotframework.remoteapplications.@0
-rule junit.** org.robotframework.remoteapplications.@0
 rule org.aopalliance.** org.robotframework.remoteapplications.@0
-rule org.hamcrest.** org.robotframework.remoteapplications.@0
-rule org.junit.** org.robotframework.remoteapplications.@0
 rule org.laughingpanda.** org.robotframework.remoteapplications.@0
 rule org.apache.ws.commons.util.** org.robotframework.remoteapplications.@0
 rule org.apache.ws.commons.serialize.** org.robotframework.remoteapplications.@0
@@ -25,3 +22,6 @@ rule javax.servlet.** org.robotframework.remoteapplications.@0
 zap org.w3c.dom.**
 zap org.xml.sax.**
 zap javax.xml.**
+zap junit.**
+zap org.hamcrest.**
+zap org.junit.**
