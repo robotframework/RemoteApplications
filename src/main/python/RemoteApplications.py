@@ -15,7 +15,6 @@
 import os
 import re
 import time
-import subprocess
 
 from java.util.jar import JarFile
 from java.util.zip import ZipException
@@ -26,6 +25,7 @@ from robot.running import NAMESPACES
 from robot.running.namespace import IMPORTER
 from robot.running.testlibraries import TestLibrary
 from robot.libraries.BuiltIn import BuiltIn
+from robot.libraries.OperatingSystem import OperatingSystem
 
 from org.robotframework.remoteapplications.org.springframework.beans.factory import BeanCreationException
 from org.robotframework.remoteapplications.org.springframework.remoting import RemoteAccessException
@@ -505,7 +505,7 @@ class RemoteApplicationsConnector:
     def _run_command_with_java_tool_options(self, command, lib_dir, port):
         orig_java_tool_options = self._get_java_tool_options()
         os.environ['JAVA_TOOL_OPTIONS'] =  self._get_java_agent(lib_dir, port)
-        subprocess.call([command])
+        OperatingSystem().start_process(command)
         os.environ['JAVA_TOOL_OPTIONS'] = orig_java_tool_options
 
     def _get_java_tool_options(self):
