@@ -54,7 +54,8 @@ def unzip_file_into_dir(file, dir):
     zfobj = zipfile.ZipFile(file)
     for name in zfobj.namelist():
         if name.endswith('/'):
-            os.makedirs(os.path.join(dir, name))
+            if not os.path.exists(name):
+                os.makedirs(os.path.join(dir, name))
         else:
             outfile = open(os.path.join(dir, name), 'wb')
             outfile.write(zfobj.read(name))
