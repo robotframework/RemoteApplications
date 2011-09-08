@@ -8,7 +8,6 @@ import re
 from tempfile import gettempdir
 
 base = os.path.abspath(os.path.normpath(os.path.split(sys.argv[0])[0]))
-python_main = os.path.join(base, 'src', 'main', 'python')
 python_test = os.path.join(base, 'src', 'test', 'python')
 testfile = re.compile('^test_.*\.py$', re.IGNORECASE)
 
@@ -83,7 +82,6 @@ def get_robot_installation_path():
             return path
 
 def run_unit_tests():
-    sys.path.append(python_main)
     tests = get_tests(os.path.join(base, 'src','test', 'python'))
     suite = unittest.TestSuite(tests)
     runner = unittest.TextTestRunner(descriptions=0, verbosity=1)
