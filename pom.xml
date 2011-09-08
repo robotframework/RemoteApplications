@@ -291,12 +291,5 @@
     </repository>
   </repositories>
 
-  <distributionManagement>
-    <repository>
-      <id>laughingpanda</id>
-      <url>scp://localhost:7003/var/www/localhost/htdocs/maven2/</url>
-    </repository>
-  </distributionManagement>
-
   <reporting/>
 </project>
