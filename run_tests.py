@@ -38,7 +38,7 @@ def sh(command):
     return output
 
 def add_src_and_test_to_pythonpath():
-    for path in [ get_jvmconnector_jar(), python_test ]:
+    for path in [ get_remoteapps_jar(), python_test ]:
         if path not in sys.path:
             sys.path.insert(0, path)
     os.environ['PYTHONPATH'] = os.pathsep.join(sys.path)
@@ -59,14 +59,14 @@ def add_dependencies_to_classpath():
     if not exists(test_classes):
         sh('mvn test-compile')
 
-    dependencies =  [get_jvmconnector_jar()] + [test_classes] + get_test_deps()
+    dependencies =  [get_remoteapps_jar()] + [test_classes] + get_test_deps()
     os.environ['CLASSPATH'] = os.pathsep.join(dependencies)
 
 def get_test_deps():
     deps = open('dependencies.txt', 'rb').read().splitlines()
     return [ dep for dep in deps if 'swinglibrary' in dep or 'org/mortbay' in dep ]
 
-def get_jvmconnector_jar():
+def get_remoteapps_jar():
     pattern = os.path.join(os.path.dirname(__file__),
                            'target', '*-jar-with-dependencies.jar')
     paths = glob.glob(pattern)
