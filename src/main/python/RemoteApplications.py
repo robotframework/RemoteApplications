@@ -56,7 +56,7 @@ class Robot26ImporterWrapper(_RobotImporterWrapper):
 
 class OldRobotImporterWrapper(_RobotImporterWrapper):
     def _remove_library(self, key):
-        if IMPORTER._libraries.has_key(key):
+        if IMPORTER._libraries.has_key(key): # key in dict doesn't work here
             index = IMPORTER._libraries._keys.index(key)
             IMPORTER._libraries._keys.pop(index)
             IMPORTER._libraries._libs.pop(index)
@@ -320,7 +320,6 @@ class RemoteApplication:
 
 class RemoteApplicationsConnector:
     """
-
     RemoteApplications library is used for launching Java applications in a
     separate process and taking Robot Framework (RF) libraries into use to
     operate on them. This is useful when application does something that cannot
@@ -331,15 +330,15 @@ class RemoteApplicationsConnector:
     application use embedded JVMs (meaning they use the JNI Invocation API to
     start the JVM), or when the startup is deeply nested in scripts.
 
-    Using RemoteApplications requires that jvm_connector jar file is in
+    Using RemoteApplications requires that remoteapplications.jar file is in
     _CLASSPATH_ environment variable before starting RF test execution.
     RemoteApplications works with Java 1.5 and newer. Following paragraphs
     contain generic information about RemoteApplications library. See also
     keywords' documentation for more detailed information.
 
-	A Java application that can be started via command line, can be started
-	using the RemoteApplications library's `Start Application` keyword. Such
-	cases include starting a Java and Java Web Start processes, for example:
+    A Java application that can be started via command line, can be taken into
+    use with keyword `Start Application`. Such cases include starting a Java
+    and Java Web Start processes, for example:
     - java -jar myapp.jar
     - jawaws http://robotframework.org/myapp.jnlp
     - myapp.exe
@@ -379,11 +378,12 @@ class RemoteApplicationsConnector:
 
     _-javaagent:"${remoteapplications.jar}"="${testing_dependencies_dir}"[:PORT=${port}]_
 
-    where _${remoteapplications.jar}_ is the path to the remoteapplications.jar and
-    _${testing_dependencies_dir}_ is the path to the directory containing the
-    test library jars. The optional _:PORT=${port}_ setting can be provided,
-    where the _:PORT=_ is separator, and _${port}_ defines the port number where
-    the service providing the testing capabilities is started.
+    where _${remoteapplications.jar}_ is the path to the
+    remoteapplications.jar and _${testing_dependencies_dir}_ is the path to
+    the directory containing the test library jars. The optional
+    _:PORT=${port}_ setting can be provided, where the _:PORT=_ is separator,
+    and _${port}_ defines the port number where the service providing the
+    testing capabilities is started.
 
     Examples of the setting command:
 
@@ -450,33 +450,34 @@ class RemoteApplicationsConnector:
         """Starts the application, connects to it and makes it active application.
 
         `command` is the command used to start the application from the command
-        line. It can be any command that finally starts JVM e.g. 'java -jar
-        my_application.jar', javaws http://my.domain.fi/my_application.jnlp or
-        'start_my_app.bat'.
+        line. It can be any command that finally starts JVM for example:
+
+          - java -jar my_application.jar
+          - javaws http://my.domain.fi/my_application.jnlp
+          - start_my_app.bat
 
         `lib_dir` is path to the directory containing all the test library jar
         files which are required for running the tests. `lib_dir` is needed in
         case libraries are not in the CLASSPATH. When application is started
         using Java Web Start and Java version is 1.6 or higher, `lib_dir` is
         mandatory. In case you are using 1.5 Java, you should package all these
-        libraries to the `jvm_connector_jar` which is set to CLASSPATH before
+        libraries to the `remoteapplications.jar` which is set to CLASSPATH before
         starting the test execution.
 
         When Java Web Start is used to start the application, there is need to
         allow permissions for the testing capabilities. Easiest way to do that
         is to add file .java.policy with following content to $HOME directory or
         %USERPROFILE% directory on Windows:
-        | _grant {_
-        |     _permission java.security.AllPermission;_
-        | _};_
+
+         _grant { permission java.security.AllPermission; };_
 
         `port` defines the port in which the testing capabilities are started
         on the application. By default port is selected randomly from available
         ports.
 
         Examples:
-        | Start Application | App1 | java -jar my_application.jar | 30 seconds | \${CURDIR}${/}libs |
-        | Start Application | App2 | my_application.exe |  | \${CURDIR}${/}libs | 12345 |
+        | Start Application | App1 | java -jar my_application.jar | 30 seconds | ${CURDIR}${/}libs |
+        | Start Application | App2 | my_application.exe |  | ${CURDIR}${/}libs | 12345 |
 
         *NOTE:* If the application is used to start other applications
         and those applications should be controlled with RemoteApplications,
