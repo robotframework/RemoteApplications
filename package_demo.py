@@ -8,11 +8,10 @@ import subprocess
 import zipfile
 
 _ROOT = os.path.abspath(os.path.dirname(__file__))
-DOC = os.path.join(_ROOT, 'doc')
-EXAMPLE = os.path.join(DOC, 'example')
+DEMO = os.path.join(_ROOT, 'demo')
 TARGET = os.path.join(_ROOT, 'target')
-LIB = os.path.join(EXAMPLE, 'lib')
-TESTS = os.path.join(EXAMPLE, 'robot-tests')
+LIB = os.path.join(DEMO, 'lib')
+TESTS = os.path.join(DEMO, 'robot-tests')
 
 
 def main():
@@ -31,17 +30,17 @@ def _run_tests():
         sys.exit(1)
 
 def _run():
-    runner = os.path.join(EXAMPLE, 'run.py')
+    runner = os.path.join(DEMO, 'run.py')
     return subprocess.call(['python', runner, TESTS],
                            shell=os.name=='nt')
 
 def _zip_example():
-    zip_target_path = os.path.join(TARGET, 'remoteapplications_example.zip')
+    zip_target_path = os.path.join(TARGET, 'remoteapplications-demo.zip')
     zip = zipfile.ZipFile(zip_target_path, 'w')
-    paths = _get_paths([(LIB, '*.jar'), (TESTS, '*.*'), (EXAMPLE, '*.*')])
+    paths = _get_paths([(LIB, '*.jar'), (TESTS, '*.*'), (DEMO, '*.*')])
     print 'Zipping files...'
     for path in paths:
-    	path_in_zip_file = path.replace(DOC, '')
+    	path_in_zip_file = path.replace(DEMO, 'remoteapplications-demo')
     	print '  %s' % (path_in_zip_file)
         zip.write(path, path_in_zip_file)
     print "Created zip file '%s'." % (zip_target_path)
