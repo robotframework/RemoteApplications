@@ -61,7 +61,7 @@ class PackageBuilder(object):
                 return mf_path
 
     def _run_jarjar(self):
-        jarjardir = os.path.join(ROOTDIR, 'jarjar')
+        jarjardir = os.path.join(ROOTDIR, 'lib')
         jarjarjar = os.path.join(jarjardir, 'jarjar-1.0.jar')
         rules = os.path.join(jarjardir, 'rules.txt')
         _shell(['java', '-jar', jarjarjar, 'process', rules,
@@ -201,8 +201,8 @@ def demo():
 def doc():
     """Create library documentation with libdoc"""
     TestRunner().add_dependencies_to_classpath()
-    libdoc = _join(ROOTDIR, 'doc', 'libdoc.py')
-    output = _join(ROOTDIR, 'doc', 'RemoteApplications.html')
+    libdoc = _join(ROOTDIR, 'lib', 'libdoc.py')
+    output = _join(TARGET, 'RemoteApplications.html')
     lib = _join(ROOTDIR, 'src', 'main', 'python', 'RemoteApplications.py')
     command = 'jython -Dpython.path=%s %s --output %s %s' % (TestRunner()._robot_installation_path(), libdoc, output, lib)
     _shell(command.split())
