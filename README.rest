@@ -6,10 +6,11 @@ cannot be tested with RF when running on the same JVM. Such cases are when
 running on separate JVMs need to be tested in parallel, or when application is
 started using Java Web Start.
 
-See [[Wiki]] for more information.
+See `Wiki`__ for more information.
 
 This projects started as part of `robotframework-javatools`__ project but is
 nowadays a separate project.
 
 .. _Robot Framework: http://robotframework.org
+__ https://github.com/robotframework/RemoteApplications/wiki
 __ http://code.google.com/p/robotframework-javatools
