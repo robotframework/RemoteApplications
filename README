@@ -1,0 +1,15 @@
+RemoteApplications is a `Robot Framework`_ (RF) test library that is used for
+launching Java applications on a separate JVM and taking other libraries into
+use on them. This is useful when application does something that
+cannot be tested with RF when running on the same JVM. Such cases are when
+`System.exit` is called by the tested application, when multiple applications
+running on separate JVMs need to be tested in parallel, or when application is
+started using Java Web Start.
+
+See [[Wiki]] for more information.
+
+This projects started as part of `robotframework-javatools`__ project but is
+nowadays a separate project.
+
+.. _Robot Framework: http://robotframework.org
+__ http://code.google.com/p/robotframework-javatools
