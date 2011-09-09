@@ -15,26 +15,32 @@ def _exists(path):
 def _join(*paths):
     return os.path.join(*paths)
 
+def _read_version():
+    for line in open('pom.xml').readlines():
+        line = line.strip()
+        if line.startswith('<version>'):
+            return line[9:-10]
+
 ROOTDIR = os.path.dirname(os.path.abspath(__file__))
 TARGET = _join(ROOTDIR, 'target')
 SRC = _join(ROOTDIR, 'src')
+DIST_JAR = _join(TARGET,
+                 'remoteapplications-%s-jar-with-dependencies.jar' %
+                 _read_version())
+
 
 class PackageBuilder(object):
 
-    def __init__(self):
-        self._jar_path = glob.glob(os.path.join(TARGET,
-                                        'remoteapplications-*-jar-with-dependencies.jar'))[0]
-
     def package(self):
-        self._maven('assembly:single')
+        self._maven()
         self._unit_tests()
         self._jar_jar()
 
-    def _maven(self, cmd):
-        _shell(['mvn', cmd])
+    def _maven(self):
+        _shell(['mvn', 'clean', 'package', 'assembly:single'])
 
     def _unit_tests(self):
-        _shell(['jython', _join(SRC, 'test', 'python', 'test_remoteapplications.py')])
+        _shell(['jython', _join(SRC, 'test', 'python', 'test_remote_applications.py')])
 
     def _jar_jar(self):
         mf_path = self._extract_manifest()
@@ -42,16 +48,15 @@ class PackageBuilder(object):
         tmpdir = os.path.join(TARGET, 'tmp')
         if os.path.exists(tmpdir):
             shutil.rmtree(tmpdir)
-        self._unzip_file_into_dir(self._jar_path, tmpdir)
+        self._unzip_file_into_dir(DIST_JAR, tmpdir)
         self._rmi_compile(tmpdir)
         shutil.copy(os.path.join('src', 'main', 'python',
                                  'RemoteApplications.py'), tmpdir)
         self._rejar(mf_path, tmpdir)
-        shutil.rmtree(tmpdir)
         os.remove(mf_path)
 
     def _extract_manifest(self):
-        zfobj = zipfile.ZipFile(self._jar_path)
+        zfobj = zipfile.ZipFile(DIST_JAR)
         for name in zfobj.namelist():
             if name == 'META-INF/MANIFEST.MF':
                 mf_path = os.path.join(TARGET, 'MANIFEST.MF')
@@ -64,8 +69,8 @@ class PackageBuilder(object):
         jarjardir = os.path.join(ROOTDIR, 'lib')
         jarjarjar = os.path.join(jarjardir, 'jarjar-1.0.jar')
         rules = os.path.join(jarjardir, 'rules.txt')
-        _shell(['java', '-jar', jarjarjar, 'process', rules,
-                self._jar_path, self._jar_path])
+        _shell(['java', '-jar', jarjarjar, 'process', rules, DIST_JAR,
+                DIST_JAR])
 
     def _unzip_file_into_dir(self, file, dir):
         os.mkdir(dir, 0777)
@@ -86,7 +91,7 @@ class PackageBuilder(object):
               tmpdir, class_name])
 
     def _rejar(self, mf_path, dir):
-        _shell(['jar', 'cfm', self._jar_path, mf_path, '-C', dir, '.'])
+        _shell(['jar', 'cfm', DIST_JAR, mf_path, '-C', dir, '.'])
 
 
 class TestRunner(object):
@@ -104,24 +109,12 @@ class TestRunner(object):
         if not _exists(self._deps_file):
             _shell(['mvn', '-DoutputAbsoluteArtifactFilename=true',
                     'dependency:list', '-DoutputFile=%s' % self._deps_file])
-        test_classes = _join('target', 'test-classes')
-        if not _exists(test_classes):
-            _shell(['mvn', 'test-compile'])
-        dependencies = [self.get_remoteapps_jar()] + [test_classes] + self.get_test_deps()
+        dependencies = [DIST_JAR, _join('target', 'test-classes')] + self.get_test_deps()
         os.environ['CLASSPATH'] = os.pathsep.join(dependencies)
 
     def get_test_deps(self):
         deps = open(self._deps_file, 'rb').read().splitlines()
         return [ dep.split(':')[-1] for dep in deps if 'swinglibrary' in dep or 'org/mortbay' in dep ]
-
-    def get_remoteapps_jar(self):
-        pattern = _join(ROOTDIR, 'target', '*-jar-with-dependencies.jar')
-        paths = glob.glob(pattern)
-        if paths:
-            paths.sort()
-            return paths[-1]
-        else:
-            raise RuntimeError('Please run "mvn assembly:assembly first')
 
     def _robot_installation_path(self):
         for path in sys.path:
@@ -138,7 +131,7 @@ debug.txt
 --loglevel
 TRACE
 --outputdir
-%s''' % (self.get_robot_installation_path(), runner, gettempdir())
+%s''' % (self._robot_installation_path(), runner, gettempdir())
         return _shell(command.strip().splitlines() + args)
 
 
@@ -155,8 +148,7 @@ class DemoPackager(object):
         self._zip_example()
 
     def _copy_libraries(self):
-        jars = glob.glob(os.path.join(TARGET, 'remoteapplications-*-with-dependencies.jar'))
-        shutil.copy(sorted(jars)[-1], self._libdir)
+        shutil.copy(DIST_JAR, self._libdir)
 
     def _run_tests(self):
         rc = self._run()
