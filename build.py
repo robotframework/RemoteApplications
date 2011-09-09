@@ -29,18 +29,30 @@ DIST_JAR = _join(TARGET,
                  _read_version())
 
 
-class PackageBuilder(object):
+class _Task(object):
 
-    def package(self):
+    def _shell(self, cmd):
+        print 'Running %s' % ' '.join(cmd)
+        return subprocess.call(cmd, shell=os.name=='nt')
+
+    def __str__(self):
+        return self.__doc__
+
+
+class Package(_Task):
+    """Package RemoteApplications with dependencies in a jar file"""
+
+    def execute(self):
         self._maven()
         self._unit_tests()
         self._jar_jar()
 
     def _maven(self):
-        _shell(['mvn', 'clean', 'package', 'assembly:single'])
+        self._shell(['mvn', 'clean', 'package', 'assembly:single'])
 
     def _unit_tests(self):
-        _shell(['jython', _join(SRC, 'test', 'python', 'test_remote_applications.py')])
+        self._shell(['jython', _join(SRC, 'test', 'python',
+                                     'test_remote_applications.py')])
 
     def _jar_jar(self):
         mf_path = self._extract_manifest()
@@ -69,7 +81,7 @@ class PackageBuilder(object):
         jarjardir = os.path.join(ROOTDIR, 'lib')
         jarjarjar = os.path.join(jarjardir, 'jarjar-1.0.jar')
         rules = os.path.join(jarjardir, 'rules.txt')
-        _shell(['java', '-jar', jarjarjar, 'process', rules, DIST_JAR,
+        self._shell(['java', '-jar', jarjarjar, 'process', rules, DIST_JAR,
                 DIST_JAR])
 
     def _unzip_file_into_dir(self, file, dir):
@@ -86,15 +98,16 @@ class PackageBuilder(object):
 
     def _rmi_compile(self, tmpdir):
         class_name = 'org.robotframework.remoteapplications.org.springframework.remoting.rmi.RmiInvocationWrapper'
-        _shell(['rmic', '-verbose', '-classpath', tmpdir, '-d', tmpdir, class_name])
-        _shell(['rmic', '-verbose', '-iiop', '-always', '-classpath', tmpdir, '-d',
+        self._shell(['rmic', '-verbose', '-classpath', tmpdir, '-d', tmpdir, class_name])
+        self._shell(['rmic', '-verbose', '-iiop', '-always', '-classpath', tmpdir, '-d',
               tmpdir, class_name])
 
     def _rejar(self, mf_path, dir):
-        _shell(['jar', 'cfm', DIST_JAR, mf_path, '-C', dir, '.'])
+        self._shell(['jar', 'cfm', DIST_JAR, mf_path, '-C', dir, '.'])
 
 
-class TestRunner(object):
+class Test(_Task):
+    """Run the acceptance tests"""
 
     def __init__(self):
         self._deps_file = _join(gettempdir(), 'remoteapps-dependencies.txt')
@@ -107,14 +120,15 @@ class TestRunner(object):
 
     def add_dependencies_to_classpath(self):
         if not _exists(self._deps_file):
-            _shell(['mvn', '-DoutputAbsoluteArtifactFilename=true',
+            self._shell(['mvn', '-DoutputAbsoluteArtifactFilename=true',
                     'dependency:list', '-DoutputFile=%s' % self._deps_file])
-        dependencies = [DIST_JAR, _join('target', 'test-classes')] + self.get_test_deps()
-        os.environ['CLASSPATH'] = os.pathsep.join(dependencies)
+        os.environ['CLASSPATH'] = os.pathsep.join([DIST_JAR,
+            _join('target', 'test-classes')] + self.get_test_deps())
 
     def get_test_deps(self):
         deps = open(self._deps_file, 'rb').read().splitlines()
-        return [ dep.split(':')[-1] for dep in deps if 'swinglibrary' in dep or 'org/mortbay' in dep ]
+        return [dep.split(':')[-1] for dep in deps
+                if 'swinglibrary' in dep or 'org/mortbay' in dep]
 
     def _robot_installation_path(self):
         for path in sys.path:
@@ -123,24 +137,20 @@ class TestRunner(object):
 
     def run_robot_tests(self, args):
         runner = _join(self._robot_installation_path(), 'robot', 'runner.py')
-        command = '''jython
--Dpython.path="%s"
-%s
---debugfile
-debug.txt
---loglevel
-TRACE
---outputdir
-%s''' % (self._robot_installation_path(), runner, gettempdir())
-        return _shell(command.strip().splitlines() + args)
+        cmd = ['jython', '-Dpython.path="%s"' % self._robot_installation_path(),
+               runner, '--debugfile', 'debug.txt', '--loglevel', 'TRACE',
+               '--outputdir', gettempdir()]
+        return self._shell(cmd + args)
 
 
-class DemoPackager(object):
+class Demo(_Task):
+    """Package demo as zip file"""
 
     def __init__(self):
         self._demodir = _join(ROOTDIR, 'demo')
         self._libdir = _join(self._demodir, 'lib')
         self._testdir = _join(self._demodir, 'robot-tests')
+        self._demo_zip_path = _join(TARGET, 'remoteapplications-demo.zip')
 
     def execute(self):
         self._copy_libraries()
@@ -158,18 +168,17 @@ class DemoPackager(object):
 
     def _run(self):
         runner = os.path.join(self._demodir, 'run.py')
-        return _shell(['python', runner, self._testdir])
+        return self._shell(['python', runner, self._testdir])
 
     def _zip_example(self):
-        zip_target_path = _join(TARGET, 'remoteapplications-demo.zip')
-        zip = zipfile.ZipFile(zip_target_path, 'w')
+        zip = zipfile.ZipFile(self._demo_zip_path, 'w')
         paths = self._get_paths()
         print 'Zipping files...'
         for path in paths:
-            path_in_zip_file = path.replace(self._demodir, 'remoteapplications-demo')
-            print '  %s' % (path_in_zip_file)
-            zip.write(path, path_in_zip_file)
-        print "Created zip file '%s'." % (zip_target_path)
+            zip_path = path.replace(self._demodir, 'remoteapplications-demo')
+            print '  %s' % (zip_path)
+            zip.write(path, zip_path)
+        print "Created zip file '%s'." % (self._demo_zip_path)
 
     def _get_paths(self):
         paths = []
@@ -178,53 +187,54 @@ class DemoPackager(object):
             paths.extend(glob.glob(os.path.join(dir, pattern)))
         return paths
 
-def package():
-    """Package RemoteApplications with dependencies in a jar file"""
-    PackageBuilder().package()
 
-def test():
-    """Run the acceptance tests"""
-    TestRunner().execute()
-
-def demo():
-    """Package demo as zip file"""
-    DemoPackager().execute()
-
-def doc():
+class Doc(_Task):
     """Create library documentation with libdoc"""
-    TestRunner().add_dependencies_to_classpath()
-    libdoc = _join(ROOTDIR, 'lib', 'libdoc.py')
-    output = _join(TARGET, 'RemoteApplications.html')
-    lib = _join(ROOTDIR, 'src', 'main', 'python', 'RemoteApplications.py')
-    command = 'jython -Dpython.path=%s %s --output %s %s' % (TestRunner()._robot_installation_path(), libdoc, output, lib)
-    _shell(command.split())
 
-def dist():
+    def execute(self):
+        Test().add_dependencies_to_classpath()
+        libdoc = _join(ROOTDIR, 'lib', 'libdoc.py')
+        output = _join(TARGET, 'RemoteApplications.html')
+        lib = _join(ROOTDIR, 'src', 'main', 'python', 'RemoteApplications.py')
+        command = 'jython -Dpython.path=%s %s --output %s %s' % \
+            (Test()._robot_installation_path(), libdoc, output, lib)
+        self._shell(command.split())
+
+
+class Dist(_Task):
     """Create package, demo and docs"""
-    package()
-    demo()
-    doc()
 
-def _shell(cmd):
-    print 'Running %s' % ' '.join(cmd)
-    return subprocess.call(cmd, shell=os.name=='nt')
+    def execute(self):
+        Package().execute()
+        Demo().execute
+        Doc().execute
 
-def _format_tasks():
-    return '\n'.join(t.__name__ + '\n\t' + t.__doc__ for t in _tasks())
 
-def _tasks():
-    def _is_task(item):
-        return inspect.isfunction(item) and not item.__name__.startswith('_')
-    return filter(_is_task, globals().values())
+class Tasks(object):
+
+    def __init__(self):
+        self._tasks = self._parse_tasks()
+
+    def get(self, name):
+        return self._tasks[name]()
+
+    def _parse_tasks(self):
+        def _is_task(item):
+            return (inspect.isclass(item) and
+                    issubclass(item, _Task) and
+                    item is not _Task)
+        return dict([(t.__name__.lower(), t) for t in globals().values()
+                     if _is_task(t)])
+
+    def __str__(self):
+        return '\n'.join(name + '\n\t' + t.__doc__ for (name, t)
+                         in self._tasks.items())
 
 
 if __name__ == '__main__':
+    tasks = Tasks()
     try:
-        {'package': package,
-         'demo': demo,
-         'test': test,
-         'doc': doc,
-         'dist': dist}[sys.argv[1]]()
+        tasks.get(sys.argv[1]).execute()
     except (KeyError, IndexError):
-        print "Usage:  build.py task\n\nAvailable tasks:\n", _format_tasks()
+        print "Usage:  build.py task\n\nAvailable tasks:\n%s" % tasks
 
