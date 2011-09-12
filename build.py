@@ -24,9 +24,11 @@ def _read_version():
 ROOTDIR = os.path.dirname(os.path.abspath(__file__))
 TARGET = _join(ROOTDIR, 'target')
 SRC = _join(ROOTDIR, 'src')
+VERSION = _read_version()
 DIST_JAR = _join(TARGET,
                  'remoteapplications-%s-jar-with-dependencies.jar' %
-                 _read_version())
+                 VERSION)
+FINAL_JAR = _join(TARGET, 'remoteapplications-%s.jar' % VERSION)
 
 
 class _Task(object):
@@ -194,7 +196,7 @@ class Doc(_Task):
     def execute(self):
         Test().add_dependencies_to_classpath()
         libdoc = _join(ROOTDIR, 'lib', 'libdoc.py')
-        output = _join(TARGET, 'RemoteApplications.html')
+        output = _join(TARGET, 'RemoteApplications-%s.html' % VERSION)
         lib = _join(ROOTDIR, 'src', 'main', 'python', 'RemoteApplications.py')
         command = 'jython -Dpython.path=%s %s --output %s %s' % \
             (Test()._robot_installation_path(), libdoc, output, lib)
@@ -208,6 +210,7 @@ class Dist(_Task):
         Package().execute()
         Demo().execute
         Doc().execute
+        shutil.copy(DIST_JAR, FINAL_JAR)
 
 
 class Tasks(object):
