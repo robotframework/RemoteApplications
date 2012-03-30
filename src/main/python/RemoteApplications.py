@@ -21,7 +21,7 @@ from java.util.zip import ZipException
 from java.io import IOException, FileNotFoundException
 
 from robot.utils import eq, normalize, NormalizedDict, seq2str, timestr_to_secs
-from robot.running import NAMESPACES
+from robot.running import EXECUTION_CONTEXTS
 from robot.running.namespace import IMPORTER
 from robot.running.testlibraries import TestLibrary
 from robot.libraries.BuiltIn import BuiltIn
@@ -81,7 +81,7 @@ class RobotLibraryImporter(object):
         return OldRobotImporterWrapper()
 
     def _remove_lib_from_current_namespace(self, name):
-        testlibs = NAMESPACES.current._testlibs
+        testlibs = EXECUTION_CONTEXTS.current.namespace._testlibs
         if testlibs.has_key(name):
             del(testlibs[name])
 
