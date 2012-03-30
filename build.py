@@ -29,6 +29,8 @@ DIST_JAR = _join(TARGET,
                  'remoteapplications-%s-jar-with-dependencies.jar' %
                  VERSION)
 FINAL_JAR = _join(TARGET, 'remoteapplications-%s.jar' % VERSION)
+ROBOT_INSTALLATION = [p for p in sys.path if
+                      os.path.exists(os.path.join(p, 'robot'))][0]
 
 
 class _Task(object):
@@ -132,14 +134,9 @@ class Test(_Task):
         return [dep.split(':')[-1] for dep in deps
                 if 'swinglibrary' in dep or 'org/mortbay' in dep]
 
-    def _robot_installation_path(self):
-        for path in sys.path:
-            if os.path.exists(os.path.join(path, 'robot')):
-                return path
-
     def run_robot_tests(self, args):
-        runner = _join(self._robot_installation_path(), 'robot', 'runner.py')
-        cmd = ['jython', '-Dpython.path="%s"' % self._robot_installation_path(),
+        runner = _join(ROBOT_INSTALLATION, 'robot', 'runner.py')
+        cmd = ['jython', '-Dpython.path="%s"' % ROBOT_INSTALLATION,
                runner, '--debugfile', 'debug.txt', '--loglevel', 'TRACE',
                '--outputdir', gettempdir()]
         return self._shell(cmd + args)
@@ -195,11 +192,10 @@ class Doc(_Task):
 
     def execute(self):
         Test().add_dependencies_to_classpath()
-        libdoc = _join(ROOTDIR, 'lib', 'libdoc.py')
         output = _join(TARGET, 'RemoteApplications-%s.html' % VERSION)
         lib = _join(ROOTDIR, 'src', 'main', 'python', 'RemoteApplications.py')
-        command = 'jython -Dpython.path=%s %s --output %s %s' % \
-            (Test()._robot_installation_path(), libdoc, output, lib)
+        command = 'jython -Dpython.path=%s -m robot.libdoc --version %s %s %s' % \
+                    (ROBOT_INSTALLATION, VERSION, lib, output)
         self._shell(command.split())
 
 
