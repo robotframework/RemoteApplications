@@ -287,7 +287,7 @@
   <repositories>
     <repository>
       <id>laughingpanda</id>
-      <url>http://www.laughingpanda.org/maven2</url>
+      <url>http://maven.laughingpanda.org/maven2</url>
     </repository>
   </repositories>
 
