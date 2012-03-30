@@ -464,12 +464,16 @@ class RemoteApplicationsConnector:
         libraries to the `remoteapplications.jar` which is set to CLASSPATH before
         starting the test execution.
 
-        When Java Web Start is used to start the application, there is need to
-        allow permissions for the testing capabilities. Easiest way to do that
-        is to add file .java.policy with following content to $HOME directory or
-        %USERPROFILE% directory on Windows:
+        When Java Web Start is used to start the application, the application
+        needs to be granted permissions that enable the testing capabilities.
+        Easiest way to do that is to create file called `.java.policy`, which
+        should be located in the `%USERPROFILE%` directory on Windows and in
+        the `$HOME` directory on other platforms. The content of the file
+        should be:
 
-         _grant { permission java.security.AllPermission; };_
+        | grant {
+        |     permission java.security.AllPermission;
+        | };
 
         `port` defines the port in which the testing capabilities are started
         on the application. By default port is selected randomly from available
