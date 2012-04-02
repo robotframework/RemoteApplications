@@ -9,11 +9,14 @@ import zipfile
 import shutil
 from tempfile import gettempdir
 
+
 def _exists(path):
     return os.path.exists(path)
 
+
 def _join(*paths):
     return os.path.join(*paths)
+
 
 def _read_version():
     for line in open('pom.xml').readlines():
@@ -37,7 +40,8 @@ class _Task(object):
 
     def _shell(self, cmd):
         print 'Running %s' % ' '.join(cmd)
-        return subprocess.call(cmd, shell=os.name=='nt')
+        windows = os.name == 'nt'
+        return subprocess.call(cmd, shell=windows)
 
     def __str__(self):
         return self.__doc__
@@ -102,9 +106,10 @@ class Package(_Task):
 
     def _rmi_compile(self, tmpdir):
         class_name = 'org.robotframework.remoteapplications.org.springframework.remoting.rmi.RmiInvocationWrapper'
-        self._shell(['rmic', '-verbose', '-classpath', tmpdir, '-d', tmpdir, class_name])
-        self._shell(['rmic', '-verbose', '-iiop', '-always', '-classpath', tmpdir, '-d',
-              tmpdir, class_name])
+        self._shell(['rmic', '-verbose', '-classpath', tmpdir, '-d', tmpdir,
+                     class_name])
+        self._shell(['rmic', '-verbose', '-iiop', '-always', '-classpath',
+                     tmpdir, '-d', tmpdir, class_name])
 
     def _rejar(self, mf_path, dir):
         self._shell(['jar', 'cfm', DIST_JAR, mf_path, '-C', dir, '.'])
@@ -135,7 +140,7 @@ class Test(_Task):
                 if 'swinglibrary' in dep or 'org/mortbay' in dep]
 
     def run_robot_tests(self, args):
-        runner = _join(ROBOT_INSTALLATION, 'robot', 'runner.py')
+        runner = _join(ROBOT_INSTALLATION, 'robot', 'run.py')
         cmd = ['jython', '-Dpython.path="%s"' % ROBOT_INSTALLATION,
                runner, '--debugfile', 'debug.txt', '--loglevel', 'TRACE',
                '--outputdir', gettempdir()]
@@ -194,7 +199,7 @@ class Doc(_Task):
         Test().add_dependencies_to_classpath()
         output = _join(TARGET, 'RemoteApplications-%s.html' % VERSION)
         lib = _join(ROOTDIR, 'src', 'main', 'python', 'RemoteApplications.py')
-        command = 'jython -Dpython.path=%s -m robot.libdoc --version %s %s %s' % \
+        command = 'jython -Dpython.path=%s -m robot.libdoc -v %s %s %s' % \
                     (ROBOT_INSTALLATION, VERSION, lib, output)
         self._shell(command.split())
 
@@ -236,4 +241,3 @@ if __name__ == '__main__':
         tasks.get(sys.argv[1]).execute()
     except (KeyError, IndexError):
         print "Usage:  build.py task\n\nAvailable tasks:\n%s" % tasks
-
