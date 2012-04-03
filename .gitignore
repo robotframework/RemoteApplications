@@ -1,1 +1,4 @@
 target
+*$py.class
+demo/results
+demo/lib/remoteapplications*jar
