@@ -21,7 +21,7 @@ import org.laughingpanda.beaninject.Inject;
 
 @RunWith(JDaveRunner.class)
 public class RmiServiceAgentIntegrationSpec extends Specification<Void> {
-    private static String agentArguments = JarSpecUtil.jarDir + JarSpecUtil.pathSep + 
+    private static String agentArguments = JarSpecUtil.jarDir + JarSpecUtil.pathSep +
                                            JarSpecUtil.jarDir + JarSpecUtil.fileSep + "helper-keywords.jar";
     private static List<String> agentArgumentsList = Arrays.asList(agentArguments.split(JarSpecUtil.pathSep));
 
@@ -30,55 +30,55 @@ public class RmiServiceAgentIntegrationSpec extends Specification<Void> {
             FakeInstrumentation instrumentation = new FakeInstrumentation();
             RmiServiceAgent.setClasspath(agentArgumentsList, instrumentation);
             List<String> expectedJars = getExpectedJars("helper-keywords.jar");
-            specify(expectedJars, instrumentation.appendedJars);
+            specify(instrumentation.appendedJars, expectedJars);
         }
-        
+
         public void doesNothingWhenNoArgumentsAreGiven() {
             FakeInstrumentation instrumentation = new FakeInstrumentation();
             RmiServiceAgent.setClasspath(new ArrayList<String>(), instrumentation);
-            
+
             specify(instrumentation.appendedJars.isEmpty());
         }
     }
-    
+
     public class AppendingToClassPath {
         public void usesClassPathAppender() {
             final ClassPathAppenderFactory factory = mock(ClassPathAppenderFactory.class);
             final ClassPathAppender appender = mock(ClassPathAppender.class);
             Inject.staticField("appenderFactory").of(RmiServiceAgent.class).with(factory);
-            
+
             final Instrumentation inst = dummy(Instrumentation.class);
             checking(new Expectations() {{
                 atLeast(1).of(factory).create(inst); will(returnValue(appender));
                 atLeast(1).of(appender).appendToClasspath(with(any(JarFile.class)));
             }});
-            
+
             RmiServiceAgent.setClasspath(agentArgumentsList, inst);
         }
     }
-    
-    
+
+
     private List<String> getExpectedJars(String... additionalJars) {
         Collection<File> jars = FileUtils.listFiles(new File(JarSpecUtil.jarDir), new String[] {"jar" }, true);
         List<String> expectedJars = new ArrayList<String>();
         for (File jar : jars) {
             expectedJars.add(jar.getName());
         }
-        
+
         for (String jar : additionalJars) {
             expectedJars.add(jar);
         }
         return expectedJars;
     }
-    
-    
+
+
     private class FakeInstrumentation implements Instrumentation {
         List<String> appendedJars = new ArrayList<String>();
-        
+
         public void appendToSystemClassLoaderSearch(JarFile jarfile) {
             appendedJars.add(JarSpecUtil.getSimpleName(jarfile));
         }
-        
+
         public void addTransformer(ClassFileTransformer transformer) {
             throw new UnsupportedOperationException("Not implemented.");
         }
