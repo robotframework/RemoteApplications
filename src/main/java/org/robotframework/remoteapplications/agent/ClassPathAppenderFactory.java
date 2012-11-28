@@ -17,12 +17,24 @@
 package org.robotframework.remoteapplications.agent;
 
 import java.lang.instrument.Instrumentation;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ClassPathAppenderFactory {
     public ClassPathAppender create(Instrumentation inst) {
-        if (System.getProperty("java.version").startsWith("1.6"))
+        if (isJava6orLater())
             return new Java6ClassPathAppender(inst);
         else
             return new NullClassPathAppender();
+    }
+
+    private static boolean isJava6orLater() {
+        String version = System.getProperty("java.version");
+        Matcher m = Pattern.compile("(\\d+)\\.(\\d+)\\.(.+)").matcher(version);
+        if (!m.find())
+            return false;
+        Integer major = Integer.parseInt(m.group(1));
+        Integer minor = Integer.parseInt(m.group(2));
+        return (major >= 1) && (minor >= 6);
     }
 }
