@@ -13,6 +13,7 @@ Starting Webstart Application
 Starting Webstart Application From Webstart Application
     Start Web Start Application  Web Start 1
     Select Application's Main Window
+    sleep     0.5     # FIXME: For some reason, clicking the start button too soon will cause the application never to start.
     Push Button  Start javaws application
     Application Started  Web Start 2
     Select Application's Main Window
