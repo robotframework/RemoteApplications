@@ -16,7 +16,7 @@
 
 package org.robotframework.remoteapplications.launch;
 
-import static org.robotframework.javalib.util.Logger.log;
+import static org.robotframework.remoteapplications.Logger.log;
 
 import java.util.Arrays;
 

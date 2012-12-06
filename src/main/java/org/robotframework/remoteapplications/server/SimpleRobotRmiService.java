@@ -19,7 +19,7 @@ package org.robotframework.remoteapplications.server;
 import java.util.Arrays;
 
 import org.robotframework.javalib.library.RobotJavaLibrary;
-import org.robotframework.javalib.util.Logger;
+import org.robotframework.remoteapplications.Logger;
 import org.robotframework.javalib.util.StdStreamRedirecter;
 import org.robotframework.remoteapplications.common.KeywordExecutionResult;
 import org.robotframework.remoteapplications.common.TestFailedException;
