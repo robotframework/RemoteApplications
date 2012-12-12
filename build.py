@@ -137,7 +137,7 @@ class Test(_Task):
     def get_test_deps(self):
         deps = open(self._deps_file, 'rb').read().splitlines()
         return [dep.split(':')[-1] for dep in deps
-                if 'swinglibrary' in dep or 'org/mortbay' in dep]
+                if 'swinglibrary' in dep or 'mortbay' in dep]
 
     def run_robot_tests(self, args):
         runner = _join(ROBOT_INSTALLATION, 'robot', 'run.py')
