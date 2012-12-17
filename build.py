@@ -61,6 +61,7 @@ class Package(_Task):
         self._shell(['mvn', 'clean', 'package', 'assembly:single'])
 
     def _unit_tests(self):
+        os.environ['CLASSPATH'] = DIST_JAR
         self._shell(['jython', _join(SRC, 'test', 'python',
                                      'test_remote_applications.py')])
 

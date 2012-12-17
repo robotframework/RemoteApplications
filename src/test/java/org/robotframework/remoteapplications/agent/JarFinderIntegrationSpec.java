@@ -19,7 +19,7 @@ public class JarFinderIntegrationSpec extends MockSupportSpecification<String> {
         public void findsJars() {
         	System.out.println(context);
             List<String> expectedJars = findJars(context);
-            specify(expectedJars, containsExactly("helper-keywords.jar", "remoteapplications.jar", "swinglibrary.jar"));
+            specify(expectedJars, containsExactly("helper-keywords.jar", "swinglibrary.jar"));
         }
     }
     
