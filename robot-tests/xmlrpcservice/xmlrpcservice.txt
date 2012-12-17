@@ -1,6 +1,6 @@
 *** Settings ***
 Suite Setup     startApplicationAndImportRemote
-Suite Teardown  closeApplication
+Suite Teardown  Run keyword and ignore error     closeApplication
 Library         OperatingSystem
 
 *** Test Cases ***
