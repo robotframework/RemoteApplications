@@ -11,7 +11,6 @@ ${APPLICATION}  org.robotframework.remoteapplications.mocks.MyApplication
 ${JVM CONNECTOR LIB}  org.robotframework.remoteapplications.keyword.JvmconnectorKeywords
 ${appLauncherScript}  ${CURDIR}${/}..${/}..${/}src${/}main${/}python${/}ApplicationLauncher.py
 ${policyFile}  ${CURDIR}${/}allow_libraries.policy
-${javaPolicyFile}  %{HOME}${/}.java.policy
 ${timeoutMsg}  Could not connect to application ${APPLICATION}
 
 *** Keywords ***
@@ -69,7 +68,7 @@ startWithJavaAgent
     [Arguments]  ${command}  ${java agent args}=
     Variable Should Exist  \${JAVA_AGENT_JAR}  You should create jar with dependencies with command "mvn assembly:assembly" before running javaagent tests.
     setEnvironmentVariable  JAVA_TOOL_OPTIONS  -javaagent:${JAVA_AGENT_JAR}=${java agent args}
-    checkPolicyFileAllowLibraryUse
+    check policy on unix
     startProcess  ${command}
     setEnvironmentVariable  JAVA_TOOL_OPTIONS  ${EMPTY}
 
@@ -77,10 +76,14 @@ closeAppStartedWithJavaAgent
     [Arguments]  ${lib}
     comment  Two steps below fails test faster in case the env is not ok
     Variable Should Exist  \${JAVA_AGENT_JAR}
-    checkPolicyFileAllowLibraryUse
+    check policy on unix
     runKeyword  ${lib}.closeApplication
 
+check policy on unix
+	Run keyword if    '\${/}' == '\/'      checkPolicyFileAllowLibraryUse
+
 checkPolicyFileAllowLibraryUse
+    ${javaPolicyFile}   set variable     %{HOME}${/}.java.policy
     ${msg} =  Set Variable  You should copy ${policyFile} to ${javaPolicyFile} to allow library use with webstart.
     File Should Exist  ${javaPolicyFile}  ${msg}
     ${content} =  Get File  ${javaPolicyFile}
