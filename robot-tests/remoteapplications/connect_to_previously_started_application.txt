@@ -1,5 +1,6 @@
 *** Settings ***
-Suite Setup     Run Tests  _start_applications
+Resource        remoteapps_resource.txt
+Suite Setup     Start applications
 Suite Teardown  Remove Connected File
 Library         OperatingSystem
 Library         org.robotframework.remoteapplications.common.DataBasePaths
@@ -16,6 +17,15 @@ Connect To Previously Started Application When Connection File Is Invalid
     Run Tests  _connect_to_previously_started_application  --include invalid
 
 *** Keywords ***
+Start Applications
+    : FOR  ${i}  IN RANGE  1  6
+    \  Start Application  Separate${i}
+Start Application
+    [Arguments]  ${name}
+    Start Simple Application  ${name}
+    Take Libraries Into Use  ${JVM CONNECTOR LIB}  JavaTools
+    Application Should Be In Use  ${name}
+
 Make Connected File Invalid
     ${path} =  Get Connected File
     Append To File  ${path}  \ninvalid\n
