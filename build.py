@@ -34,7 +34,8 @@ DIST_JAR = _join(TARGET,
 FINAL_JAR = _join(TARGET, 'remoteapplications-%s.jar' % VERSION)
 ROBOT_INSTALLATION = [p for p in sys.path if
                       os.path.exists(os.path.join(p, 'robot'))][0]
-
+TEST_LIB = _join(TARGET, 'test-classes', 'test-lib')
+REMOTE_LIB_IN_TEST_LIB = TEST_LIB = _join(TEST_LIB, 'remoteapplications.jar')
 
 class _Task(object):
 
@@ -54,6 +55,7 @@ class Package(_Task):
         self._maven()
         self._unit_tests()
         self._jar_jar()
+        self._copy_to_target()
 
     def _maven(self):
         self._shell(['mvn', 'clean', 'package', 'assembly:single'])
@@ -113,6 +115,9 @@ class Package(_Task):
 
     def _rejar(self, mf_path, dir):
         self._shell(['jar', 'cfm', DIST_JAR, mf_path, '-C', dir, '.'])
+
+    def _copy_to_target(self):
+        shutil.copy2(DIST_JAR, REMOTE_LIB_IN_TEST_LIB)
 
 
 class Test(_Task):

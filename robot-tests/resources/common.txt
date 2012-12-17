@@ -5,7 +5,7 @@ Library         PythonpathHelper.py
 Resource        webstart.txt
 
 *** Variables ***
-${TEST APP DIR}  ${CURDIR}${/}..${/}..${/}src${/}test${/}resources
+${TEST APP DIR}  ${CURDIR}${/}..${/}..${/}target${/}test-classes
 ${JAR DIR}  ${TEST APP DIR}${/}test-lib
 ${APPLICATION}  org.robotframework.remoteapplications.mocks.MyApplication
 ${JVM CONNECTOR LIB}  org.robotframework.remoteapplications.keyword.JvmconnectorKeywords
