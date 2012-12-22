@@ -18,6 +18,7 @@ import time
 import tempfile
 import sys
 
+
 from java.io import File
 from java.util.jar import JarFile
 from java.util.zip import ZipException
@@ -457,6 +458,8 @@ class RemoteApplicationsConnector:
                      and attr not in ignore_methods]
         self._use_previously_launched = False
         self._robot_namespace_bridge = RobotLibraryImporter()
+        # FIXME: close this sometime?
+        self._files = []
 
     def _initialize(self):
         self._apps = Applications()

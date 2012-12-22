@@ -17,3 +17,4 @@ Starting Application Separately And Giving URL
     Application Started    AppWithPort2    10 seconds    rmi://localhost:13245/robotrmiservice
     Application Should Be In Use    AppWithPort2
     [Teardown]    Close Application
+
