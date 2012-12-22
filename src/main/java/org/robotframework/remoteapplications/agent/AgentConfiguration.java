@@ -28,8 +28,10 @@ public class AgentConfiguration {
 
     private Integer port;
     private List<String> jars = new ArrayList<String>();
+    private String separator;
 
     public AgentConfiguration(String arguments) {
+
         List<String> splittedArguments = Arrays.asList(arguments.split(File.pathSeparator));
         parsePort(splittedArguments);
         parseJars(splittedArguments);
