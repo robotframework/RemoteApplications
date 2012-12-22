@@ -15,6 +15,8 @@
 import os
 import re
 import time
+import subprocess
+import tempfile
 
 from java.util.jar import JarFile
 from java.util.zip import ZipException
@@ -25,7 +27,6 @@ from robot.running import EXECUTION_CONTEXTS
 from robot.running.namespace import IMPORTER
 from robot.running.testlibraries import TestLibrary
 from robot.libraries.BuiltIn import BuiltIn
-from robot.libraries.OperatingSystem import OperatingSystem
 
 from org.robotframework.remoteapplications.org.springframework.beans.factory import BeanCreationException
 from org.robotframework.remoteapplications.org.springframework.remoting import RemoteAccessException
@@ -122,13 +123,16 @@ class Applications:
     def __init__(self):
         self._apps = NormalizedDict()
         self._old_apps = NormalizedDict()
-        for alias, url in self._get_aliases_and_urls_from_db():
-            self._old_apps[alias] = url
+        for alias, url, output_file in self._get_aliases_urls_and_output_files_from_db():
+            self._old_apps[alias] = (url, output_file)
 
-    def _get_aliases_and_urls_from_db(self):
+    def _get_aliases_urls_and_output_files_from_db(self):
         items = []
         for connection in self._read_lines():
-            items.append(connection.rsplit('\t', 1))
+            if connection.count('\t') > 1:
+                items.append(connection.rsplit('\t', 2))
+            else:
+                print 'Rejected database entry %s' % connection
         return items
 
     def _read_lines(self):
@@ -140,15 +144,15 @@ class Applications:
         return []
 
     def _is_valid_connection(self, line):
-        return len(line.rsplit('\t', 1)) == 2
+        return len(line.rsplit('\t', 2)) == 3
 
     def add(self, alias, app):
         self._apps[alias] = app
-        self._old_apps[alias] = app.rmi_url
+        self._old_apps[alias] = (app.rmi_url, app.output_file)
         self._store()
 
     def _store(self):
-        data = ['%s\t%s' % (alias, url) for alias, url
+        data = ['%s\t%s\t%s' % (alias, url, output_file) for alias, (url, output_file)
                 in self._old_apps.items()]
         data_txt = '\n'.join(data)
         self._write(data_txt)
@@ -188,10 +192,16 @@ class Applications:
         return None
 
     def get_url(self, alias):
-        for name, url in self._get_aliases_and_urls_from_db():
+        return self.get_url_and_output(alias)[0]
+
+    def get_url_and_output(self, alias):
+        for name, url, output_file in self._get_aliases_urls_and_output_files_from_db():
             if eq(name, alias):
-                return url
-        return None
+                return url, output_file
+        return None, None
+
+    def get_output_file_name(self, alias):
+        return self.get_url_and_output(alias)[1]
 
 
 class RemoteApplication:
@@ -204,11 +214,13 @@ class RemoteApplication:
         self.rmi_url = None
         self._rmi_client = None
         self.alias = None
+        self.output_file = None
 
-    def application_started(self, alias, timeout='60 seconds', rmi_url=None):
+    def application_started(self, alias, timeout='60 seconds', rmi_url=None, output_file=None):
         if self._rmi_client:
             raise RuntimeError("Application already connected")
         self.alias = alias
+        self.output_file = output_file
         timeout = timestr_to_secs(timeout or '60 seconds')
         self._rmi_client = self._connect_to_base_rmi_service(alias, timeout,
                 rmi_url)
@@ -444,6 +456,8 @@ class RemoteApplicationsConnector:
                      and attr not in ignore_methods]
         self._use_previously_launched = False
         self._robot_namespace_bridge = RobotLibraryImporter()
+        # FIXME: close this sometime?
+        self._files = []
 
     def _initialize(self):
         self._apps = Applications()
@@ -501,10 +515,11 @@ class RemoteApplicationsConnector:
         """
         self._alias_in_use(alias)
         self._clear_launched_apps_db(port)
+        output_file = None
         if not (self._use_previously_launched and self._apps.get_url(alias)):
-            self._run_command_with_java_tool_options(command, lib_dir, port)
+            output_file = self._run_command_with_java_tool_options(alias, command, lib_dir, port)
         rmi_url = self._get_rmi_url(alias, port)
-        self.application_started(alias, timeout, rmi_url)
+        self._application_started(alias, timeout, rmi_url, output_file)
 
     def _alias_in_use(self, alias):
         if self._apps.has_connected_to_application(alias):
@@ -515,11 +530,25 @@ class RemoteApplicationsConnector:
         if not port and os.path.exists(self._database):
             os.remove(self._database)
 
-    def _run_command_with_java_tool_options(self, command, lib_dir, port):
+    def _run_command_with_java_tool_options(self, alias, command, lib_dir, port):
         orig_java_tool_options = self._get_java_tool_options()
-        os.environ['JAVA_TOOL_OPTIONS'] = self._get_java_agent(lib_dir, port)
-        OperatingSystem().start_process(command)
+        tool_options = self._get_java_agent(lib_dir, port)
+        print '*DEBUG* Settings JAVA_TOOL_OPTIONS=%s' % tool_options
+        os.environ['JAVA_TOOL_OPTIONS'] = tool_options
+        output_file = self._start(alias, command)
         os.environ['JAVA_TOOL_OPTIONS'] = orig_java_tool_options
+        return output_file
+
+    def _start(self, alias, command):
+        temp = self._get_temp_file(alias)
+        self._files.append(temp)
+        print '*HTML* Directing output to <a href="%s">%s</a>' % (temp.name, temp.name)
+        temp.write('Starting with command %s' % command)
+        subprocess.Popen([command], shell=True, stdout=temp)
+        return temp.name
+
+    def _get_temp_file(self, alias):
+        return open(os.path.join(tempfile.gettempdir(), 'remote_%s_%s.txt' % (alias, int(time.time()))), 'w')
 
     def _get_java_tool_options(self):
         if 'JAVA_TOOL_OPTIONS' in os.environ:
@@ -594,11 +623,18 @@ class RemoteApplicationsConnector:
         | Application Started | App1 |  |  |
         | Application Started | App2 | 2 minutes | rmi://localhost:7000/robotrmiservice |
         """
+        self._application_started(alias, timeout=timeout, rmi_url=rmi_url)
+
+    def _application_started(self, alias, timeout='60 seconds', rmi_url=None, output_file=None):
+        # FIXME: cleanup, too long...
         self._alias_in_use(alias)
         app = RemoteApplication()
         if self._use_previously_launched:
             rmi_url = rmi_url or self._apps.get_url(alias)
-        app.application_started(alias, timeout, rmi_url)
+            output_file = output_file or self._apps.get_output_file_name(alias)
+        app.application_started(alias, timeout, rmi_url, output_file)
+        if output_file:
+            print '*html* Applications output in file <a href="%s">%s</a>' % (output_file, output_file)
         self._apps.add(alias, app)
         self._active_app = app
 

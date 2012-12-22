@@ -19,6 +19,7 @@ package org.robotframework.remoteapplications.agent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.io.File;
 
 public class AgentConfiguration {
 
@@ -33,7 +34,7 @@ public class AgentConfiguration {
 
     private List<String> split(String arguments) {
         List<String> args = new ArrayList<String>();
-        for (String item : arguments.split(":")) {
+        for (String item : arguments.split(File.pathSeparator)) {
             if (driveLetterIsLastAppenededItemIn(args)) {
                 appendItemToDriveLetter(args, item);
             } else {
