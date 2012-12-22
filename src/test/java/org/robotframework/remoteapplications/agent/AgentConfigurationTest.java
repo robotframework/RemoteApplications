@@ -27,18 +27,18 @@ public class AgentConfigurationTest{
 
     @Test
     public void parseWithoutPort() {
-        testParser("zip.jar"+File.pathSeparator+"foo.jar", null, "zip.jar"+File.pathSeparator+"foo.jar");
+        testParser("zip.jar;foo.jar", null, "zip.jar;foo.jar");
     }
 
     @Test
     public void parseWithWindowsDriveLetter() {
-        testParser("C:\\zip.jar"+File.pathSeparator+"D:\\foo.jar", null, "C:\\zip.jar"+File.pathSeparator+"D:\\foo.jar");
+        testParser("C:\\zip.jar;D:\\foo.jar", null, "C:\\zip.jar;D:\\foo.jar", ";");
     }
 
     @Test
     public void parseWithWindowsDriveLetterComplex() {
-        testParser("C:\\foo\\bar\\zip.jar"+File.pathSeparator+"foo.jar"+File.pathSeparator+"E:\\some\\package\\foo.jar", null,
-                   "C:\\foo\\bar\\zip.jar;foo.jar;E:\\some\\package\\foo.jar");
+        testParser("C:\\foo\\bar\\zip.jar;foo.jar;E:\\some\\package\\foo.jar", null,
+                   "C:\\foo\\bar\\zip.jar;foo.jar;E:\\some\\package\\foo.jar", ";");
     }
 
     @Test(expected=NumberFormatException.class)
@@ -46,14 +46,14 @@ public class AgentConfigurationTest{
         testParser("zip.jar"+File.pathSeparator+"port=abcd"+File.pathSeparator+"foo.jar", null, "zip.jar"+File.pathSeparator+"foo.jar");
     }
 
-    private void testParserSplit(String input, Integer port, String jars, String splitter) {
-        AgentConfiguration conf = new AgentConfiguration(input);
+    private void testParser(String input, Integer port, String jars, String splitter) {
+        AgentConfiguration conf = new AgentConfiguration(input, splitter);
         assertEquals(port, conf.getPort());
         List<String> expected = Arrays.asList(jars.split(splitter));
         assertEquals(expected, conf.getJars());
     }
 
     private void testParser(String input, Integer port, String jars) {
-        testParserSplit(input, port, jars, File.pathSeparator);
+        testParser(input, port, jars, File.pathSeparator);
     }
 }

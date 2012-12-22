@@ -95,4 +95,4 @@ Run if not on windows
 
 Run if on windows
     [arguments]    @{command}
-    Run keyword if    '\${/}' == '\\'      @{command}
+    Run keyword unless    '\${/}' == '\/'      @{command}

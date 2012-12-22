@@ -25,8 +25,14 @@ public class AgentConfiguration {
 
     private Integer port;
     private List<String> jars = new ArrayList<String>();
+    private String separator;
 
     public AgentConfiguration(String arguments) {
+        this(arguments, File.pathSeparator);
+    }
+
+    public AgentConfiguration(String arguments, String pathSeparator) {
+        this.separator = pathSeparator;
         List<String> splittedArguments = split(arguments);
         parsePort(splittedArguments);
         parseJars(splittedArguments);
@@ -34,34 +40,10 @@ public class AgentConfiguration {
 
     private List<String> split(String arguments) {
         List<String> args = new ArrayList<String>();
-        for (String item : arguments.split(File.pathSeparator)) {
-            if (driveLetterIsLastAppenededItemIn(args)) {
-                appendItemToDriveLetter(args, item);
-            } else {
-                args.add(item);
-            }
+        for (String item : arguments.split(separator)) {
+            args.add(item);
         }
         return args;
-    }
-
-    private boolean driveLetterIsLastAppenededItemIn(List<String> items) {
-        if (!items.isEmpty() && getLastItemFrom(items).length() == 1 ) 
-            return true;
-        return false;
-    }
-
-    private String getLastItemFrom(List<String> items) {
-        return items.get(items.size()-1);
-    }
-
-    private void appendItemToDriveLetter(List<String> items, String item) {
-        String letter = getLastItemFrom(items);
-        removeLastItemFrom(items);
-        items.add(letter + ":" + item);
-    }
-
-    private String removeLastItemFrom(List<String> items) {
-        return items.remove(items.size()-1);
     }
 
     private void parsePort(List<String> arguments) {

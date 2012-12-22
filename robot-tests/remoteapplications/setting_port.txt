@@ -10,7 +10,7 @@ Defining Port To Start Application
     [Teardown]    Close Application
 
 Starting Application Separately And Giving URL
-    Run on windows    Fail    This test's teardown gets stuck on windows, so now this test is not executed
+    Run if on windows    Fail    This test's teardown gets stuck on windows, so now this test is not executed
     Set Environment Variable    JAVA_TOOL_OPTIONS    -javaagent:${JAVA AGENT JAR}=${JAR DIR}${:}PORT=13245
     Start Process    java -Dproperty.name=AppWithPort2 ${APPLICATION}
     Set Environment Variable    JAVA_TOOL_OPTIONS    ${EMPTY}
