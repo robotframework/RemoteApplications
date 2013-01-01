@@ -109,6 +109,12 @@
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>2.5.4</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
       <version>2.5.4</version>
       <scope>compile</scope>
@@ -130,12 +136,6 @@
       <artifactId>junit</artifactId>
       <version>4.5</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.1</version>
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -172,6 +172,28 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>createJarjarDir</id>
+            <phase>process-resources</phase>
+            <configuration>
+              <tasks>
+                <delete dir="${project.build.directory}/jarjarred"/>
+                <mkdir dir="${project.build.directory}/jarjarred"/>
+                <copy todir="${project.build.directory}/jarjarred">
+                  <fileset dir="${basedir}/src/main/python" includes="*.py" />
+                </copy>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-eclipse-plugin</artifactId>
         <configuration>
           <downloadSources>true</downloadSources>
@@ -191,32 +213,6 @@
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.2</version>
-        <configuration>
-          <archive>
-            <manifestEntries>
-              <Premain-Class>${agentClass}</Premain-Class>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2-beta-4</version>
-        <configuration>
-          <descriptorRefs>
-            <descriptorRef>jar-with-dependencies</descriptorRef>
-          </descriptorRefs>
-          <archive>
-            <manifestEntries>
-              <Premain-Class>${agentClass}</Premain-Class>
-            </manifestEntries>
-          </archive>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <source>1.5</source>
@@ -224,16 +220,153 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
+        <groupId>org.sonatype.plugins</groupId>
+        <artifactId>jarjar-maven-plugin</artifactId>
+        <version>1.7</version>
         <executions>
           <execution>
-            <id>attach-sources</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jarjar</goal>
+            </goals>
+            <configuration>
+              <output>${project.build.directory}/jarjarred</output>
+              <overwrite>true</overwrite>
+              <includes>
+                <include>org.springframework:spring-core</include>
+                <include>com.thoughtworks.paranamer:paranamer</include>
+                <include>commons-io:commons-io</include>
+                <include>backport-util-concurrent:backport-util-concurrent</include>
+                <include>commons-collections:commons-collections</include>
+                <include>org.springframework:spring-context</include>
+                <include>org.springframework:spring-aop</include>
+                <include>org.apache.xmlrpc:xmlrpc-client</include>
+                <include>org.apache.xmlrpc:xmlrpc-server</include>
+                <include>commons-httpclient:commons-httpclient</include>
+                <include>org.robotframework:javalib-core</include>
+                <include>aopalliance:aopalliance</include>
+                <include>jretrofit:jretrofit</include>
+                <include>org.springframework:spring</include>
+                <include>org.springframework:spring-web</include>
+              </includes>
+              <rules>
+                <rule>
+                  <pattern>com.thoughtworks.**</pattern>
+                  <result>org.robotframework.remoteapplications.@0</result>
+                </rule>
+                <rule>
+                  <pattern>edu.emory.**</pattern>
+                  <result>org.robotframework.remoteapplications.@0</result>
+                </rule>
+                <rule>
+                  <pattern>org.aopalliance.**</pattern>
+                  <result>org.robotframework.remoteapplications.@0</result>
+                </rule>
+                <rule>
+                  <pattern>org.laughingpanda.**</pattern>
+                  <result>org.robotframework.remoteapplications.@0</result>
+                </rule>
+                <rule>
+                  <pattern>org.apache.**</pattern>
+                  <result>org.robotframework.remoteapplications.@0</result>
+                </rule>
+                <rule>
+                  <pattern>org.springframework.**</pattern>
+                  <result>org.robotframework.remoteapplications.@0</result>
+                </rule>
+                <rule>
+                  <pattern>javax.servlet.**</pattern>
+                  <result>org.robotframework.remoteapplications.@0</result>
+                </rule>
+                <keep>
+                  <pattern>org.robotframework.**</pattern>
+                </keep>
+                <keep>
+                  <pattern>JavaTools</pattern>
+                </keep>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>rmic-maven-plugin</artifactId>
+        <version>1.2.1</version>
+        <executions>
+          <execution>
+            <id>rmi compilation</id>
+            <phase>package</phase>
+            <goals>
+              <goal>rmic</goal>
+            </goals>
+            <configuration>
+              <classesDirectory>${project.build.directory}/jarjarred</classesDirectory>
+              <outputDirectory>${project.build.directory}/jarjarred</outputDirectory>
+              <includes>
+                <include>org.robotframework.remoteapplications.org.springframework.remoting.rmi.RmiInvocationWrapper</include>
+              </includes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>rmi iiop compilation</id>
+            <phase>package</phase>
+            <goals>
+              <goal>rmic</goal>
+            </goals>
+            <configuration>
+              <iiop>true</iiop>
+              <staleMillis>1</staleMillis>
+              <classesDirectory>${project.build.directory}/jarjarred</classesDirectory>
+              <outputDirectory>${project.build.directory}/jarjarred</outputDirectory>
+              <includes>
+                <include>org.robotframework.remoteapplications.org.springframework.remoting.rmi.RmiInvocationWrapper</include>
+              </includes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
             <goals>
               <goal>jar</goal>
             </goals>
+            <configuration>
+              <finalName>test-classes/test-lib/remoteapplications-${project.version}</finalName>
+              <classesDirectory>${project.build.directory}/jarjarred</classesDirectory>
+              <archive>
+            <manifestEntries>
+              <Premain-Class>org.robotframework.remoteapplications.agent.RmiServiceAgent</Premain-Class>
+            </manifestEntries>
+              </archive>
+            </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.robotframework</groupId>
+        <artifactId>robotframework-maven-plugin</artifactId>
+        <version>1.0.5</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>acceptance-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <extraPathDirectories>
+            <extraPathDirectory>${project.build.directory}/test-classes/test-lib/remoteapplications-${project.version}.jar</extraPathDirectory>
+          </extraPathDirectories>
+          <testCasesDirectory>${project.basedir}/robot-tests</testCasesDirectory>
+          <logLevel>DEBUG</logLevel>
+        </configuration>
       </plugin>
     </plugins>
   </build>
