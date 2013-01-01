@@ -20,9 +20,14 @@ package org.robotframework.remoteapplications.server;
 import java.rmi.RemoteException;
 
 import org.springframework.remoting.rmi.RmiServiceExporter;
+import org.springframework.remoting.RemoteAccessException;
+import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 
 public class RmiServicePublisher {
     private final RmiServiceExporter serviceExporter;
+    // FIXME: These are a hack to force jarjar to include these classes
+    protected RemoteAccessException except;
+    protected RmiProxyFactoryBean proxyBean;
 
     public RmiServicePublisher() {
         this(new RmiServiceExporter());
