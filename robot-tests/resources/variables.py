@@ -3,7 +3,7 @@ import os as _os
 
 
 _pattern = _os.path.join(_os.path.dirname(__file__), '..', '..',
-                         'target', '*-jar-with-dependencies.jar')
+                         'target', 'test-classes', 'test-lib', 'remoteapplications*.jar')
 _paths = _glob.glob(_pattern)
 
 if not _os.getenv('HOME') and _os.getenv('USERPROFILE'):
