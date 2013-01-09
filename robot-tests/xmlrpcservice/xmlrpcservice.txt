@@ -2,6 +2,7 @@
 Suite Setup     startApplicationAndImportRemote
 Suite Teardown  Run keyword and ignore error     closeApplication
 Library         OperatingSystem
+Resource        ../resources/common.txt
 
 *** Test Cases ***
 Remote Library Uses XmlRpc Service
@@ -10,6 +11,7 @@ Remote Library Uses XmlRpc Service
 
 *** Keywords ***
 startApplicationAndImportRemote
+    Run if on windows    Fail    This test gets stuck on windows, so now it is not executed
     startProcess  java org.robotframework.remoteapplications.mocks.XmlRpcTestApplication
     importLibrary  Remote
 

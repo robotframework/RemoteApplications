@@ -166,6 +166,13 @@
       <version>2.5.4</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.1.1</version>
+      <scope>compile</scope>
+    </dependency>
+    
   </dependencies>
 
   <build>
@@ -248,6 +255,7 @@
                 <include>jretrofit:jretrofit</include>
                 <include>org.springframework:spring</include>
                 <include>org.springframework:spring-web</include>
+                <include>commons-logging:commons-logging</include>
               </includes>
               <rules>
                 <rule>
@@ -348,6 +356,7 @@
           </execution>
         </executions>
       </plugin>
+      <!--
       <plugin>
         <groupId>org.robotframework</groupId>
         <artifactId>robotframework-maven-plugin</artifactId>
@@ -367,6 +376,28 @@
           <testCasesDirectory>${project.basedir}/robot-tests</testCasesDirectory>
           <logLevel>DEBUG</logLevel>
         </configuration>
+      </plugin>
+      -->
+      <plugin>
+        <artifactId>maven-invoker-plugin</artifactId>
+        <version>1.7</version>
+        <configuration>
+          <projectsDirectory>src/it</projectsDirectory>
+          <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+          <pomIncludes>
+            <pomInclude>*/pom.xml</pomInclude>
+          </pomIncludes>
+          <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
+        </configuration>
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <goals>
+              <goal>install</goal>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

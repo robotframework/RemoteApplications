@@ -5,11 +5,11 @@ Resource        ../resources/common.txt
 *** Keywords ***
 Start Simple Application
     [Arguments]  ${name}  ${port}=
-    RemoteApplications.Start Application  ${name}  java -Dproperty.name=""${name}"" ${APPLICATION} ${name}  5 secs  ${JAR DIR}  ${port}
+    RemoteApplications.Start Application  ${name}  java -Dproperty.name=${name} ${APPLICATION} ${name}  15 secs  ${JAR DIR}  ${port}
 
 Start Web Start Application
     [Arguments]  ${name}  ${jnlp}=${jnlpWithMainClassUrl}
-    RemoteApplications.Start Application  ${name}  javaws ${jnlp}  30 secs  ${JAR DIR}
+    RemoteApplications.Start Application  ${name}  javaws ${jnlp}  60 secs  ${JAR DIR}
 
 Application Should Be Running
     [Arguments]  ${name}

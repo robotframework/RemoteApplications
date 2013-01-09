@@ -22,12 +22,14 @@ import java.rmi.RemoteException;
 import org.springframework.remoting.rmi.RmiServiceExporter;
 import org.springframework.remoting.RemoteAccessException;
 import org.springframework.remoting.rmi.RmiProxyFactoryBean;
+import org.apache.commons.logging.impl.NoOpLog;
 
 public class RmiServicePublisher {
     private final RmiServiceExporter serviceExporter;
     // FIXME: These are a hack to force jarjar to include these classes
     protected RemoteAccessException except;
     protected RmiProxyFactoryBean proxyBean;
+    protected NoOpLog log;
 
     public RmiServicePublisher() {
         this(new RmiServiceExporter());

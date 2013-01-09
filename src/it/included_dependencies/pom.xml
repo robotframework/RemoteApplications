@@ -1,0 +1,51 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.robotframework.test</groupId>
+  <artifactId>test-maven-dependency</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>mytest</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <dependency>
+      <groupId>this.does.not.matter</groupId>
+      <artifactId>ThisAlsoIsIgnored</artifactId>
+      <version>42</version>
+      <scope>system</scope>
+      <systemPath>@project.build.directory@/test-classes/test-lib/remoteapplications-@project.version@.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>org.mortbay.jetty</groupId>
+      <artifactId>jetty</artifactId>
+      <version>6.1.11</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.robotframework</groupId>
+        <artifactId>robotframework-maven-plugin</artifactId>
+        <version>1.0.6</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>run</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <testCasesDirectory>${project.basedir}/../../../robot-tests</testCasesDirectory>
+          <logLevel>DEBUG</logLevel>
+          <extraPathDirectories>
+            <extraPathDirectory>${project.basedir}/../../../robot-tests/libs</extraPathDirectory>
+          </extraPathDirectories>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
