@@ -6,7 +6,7 @@ Library         OperatingSystem
 Library         org.robotframework.remoteapplications.common.DataBasePaths
 
 *** Variables ***
-${RUNNER}  jybot
+${RUNNER}  java org.robotframework.RobotFramework
 
 *** Test Cases ***
 Connect To Previously Started Application/Applications Using Start Application Keyword & Application Started Keyword
