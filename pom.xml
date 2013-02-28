@@ -249,6 +249,9 @@
                 <include>org.springframework:spring-aop</include>
                 <include>org.apache.xmlrpc:xmlrpc-client</include>
                 <include>org.apache.xmlrpc:xmlrpc-server</include>
+                <include>org.apache.xmlrpc:xmlrpc-common</include>
+                <include>org.apache.ws.commons.util:ws-commons-util:jar</include>
+                <include>xml-apis:xml-apis</include>
                 <include>commons-httpclient:commons-httpclient</include>
                 <include>org.robotframework:javalib-core</include>
                 <include>aopalliance:aopalliance</include>
@@ -356,11 +359,11 @@
           </execution>
         </executions>
       </plugin>
-      <!--
+
       <plugin>
         <groupId>org.robotframework</groupId>
         <artifactId>robotframework-maven-plugin</artifactId>
-        <version>1.0.5</version>
+        <version>1.0.8</version>
         <executions>
           <execution>
             <goals>
@@ -370,35 +373,17 @@
           </execution>
         </executions>
         <configuration>
-          <extraPathDirectories>
-            <extraPathDirectory>${project.build.directory}/test-classes/test-lib/remoteapplications-${project.version}.jar</extraPathDirectory>
-          </extraPathDirectories>
+            <externalRunner>
+                <environmentVariables>
+                    <CLASSPATH>${project.basedir}/lib/javalib-core-1.0.3.jar:${project.basedir}/lib/servlet-api-2.5.jar:${project.basedir}/lib/jetty-util-6.1.11.jar:${project.basedir}/lib/jetty-6.1.11.jar:${project.basedir}/lib:${project.build.directory}/test-classes/test-lib/remoteapplications-${project.version}.jar</CLASSPATH>
+                </environmentVariables>
+                <excludeDependencies>true</excludeDependencies>
+            </externalRunner>
           <testCasesDirectory>${project.basedir}/robot-tests</testCasesDirectory>
           <logLevel>DEBUG</logLevel>
         </configuration>
       </plugin>
-      -->
-      <plugin>
-        <artifactId>maven-invoker-plugin</artifactId>
-        <version>1.7</version>
-        <configuration>
-          <projectsDirectory>src/it</projectsDirectory>
-          <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
-          <pomIncludes>
-            <pomInclude>*/pom.xml</pomInclude>
-          </pomIncludes>
-          <localRepositoryPath>${project.build.directory}/local-repo</localRepositoryPath>
-        </configuration>
-        <executions>
-          <execution>
-            <id>integration-test</id>
-            <goals>
-              <goal>install</goal>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+
     </plugins>
   </build>
 

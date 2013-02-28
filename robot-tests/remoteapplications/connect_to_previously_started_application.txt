@@ -6,7 +6,7 @@ Library         OperatingSystem
 Library         org.robotframework.remoteapplications.common.DataBasePaths
 
 *** Variables ***
-${RUNNER}  ${CURDIR}${/}..${/}..${/}build.py test
+${RUNNER}  jybot
 
 *** Test Cases ***
 Connect To Previously Started Application/Applications Using Start Application Keyword & Application Started Keyword
