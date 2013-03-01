@@ -19,6 +19,7 @@ import subprocess
 import tempfile
 import sys
 
+from java.io import File
 from java.util.jar import JarFile
 from java.util.zip import ZipException
 from java.io import IOException, FileNotFoundException
@@ -578,7 +579,7 @@ class RemoteApplicationsConnector:
                 continue
             if premain_class == agent_class:
                 print "*TRACE* Found jvm_connector jar '%s'" % jar_file
-                return os.path.abspath(jar_file)
+                return File(jar_file).getAbsolutePath()
         raise RuntimeError("Could not find remoteapplications jarfile from "
                            "CLASSPATH")
 
