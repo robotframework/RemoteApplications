@@ -17,6 +17,9 @@
 
 package org.robotframework.remoteapplications.agent;
 
+import edu.emory.mathcs.backport.java.util.Arrays;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,41 +29,9 @@ public class AgentConfiguration {
     private List<String> jars = new ArrayList<String>();
 
     public AgentConfiguration(String arguments) {
-        List<String> splittedArguments = split(arguments);
+        List<String> splittedArguments = Arrays.asList(arguments.split(File.pathSeparator));
         parsePort(splittedArguments);
         parseJars(splittedArguments);
-    }
-
-    private List<String> split(String arguments) {
-        List<String> args = new ArrayList<String>();
-        for (String item : arguments.split(":")) {
-            if (driveLetterIsLastAppenededItemIn(args)) {
-                appendItemToDriveLetter(args, item);
-            } else {
-                args.add(item);
-            }
-        }
-        return args;
-    }
-
-    private boolean driveLetterIsLastAppenededItemIn(List<String> items) {
-        if (!items.isEmpty() && getLastItemFrom(items).length() == 1 ) 
-            return true;
-        return false;
-    }
-
-    private String getLastItemFrom(List<String> items) {
-        return items.get(items.size()-1);
-    }
-
-    private void appendItemToDriveLetter(List<String> items, String item) {
-        String letter = getLastItemFrom(items);
-        removeLastItemFrom(items);
-        items.add(letter + ":" + item);
-    }
-
-    private String removeLastItemFrom(List<String> items) {
-        return items.remove(items.size()-1);
     }
 
     private void parsePort(List<String> arguments) {
@@ -73,7 +44,7 @@ public class AgentConfiguration {
     }
 
     private boolean isPort(String item) {
-        return item.toLowerCase().contains("port");
+        return item.toLowerCase().startsWith("port");
     }
 
     private void parseJars(List<String> arguments) {
