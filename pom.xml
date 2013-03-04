@@ -375,7 +375,7 @@
         <configuration>
             <externalRunner>
                 <environmentVariables>
-                    <CLASSPATH>${project.basedir}/lib/javalib-core-1.0.3.jar:${project.basedir}/lib/servlet-api-2.5.jar:${project.basedir}/lib/jetty-util-6.1.11.jar:${project.basedir}/lib/jetty-6.1.11.jar:${project.basedir}/lib:${project.build.directory}/test-classes/test-lib/remoteapplications-${project.version}.jar</CLASSPATH>
+                    <CLASSPATH>${project.build.directory}/test-classes/test-lib/remoteapplications-${project.version}.jar</CLASSPATH>
                 </environmentVariables>
                 <excludeDependencies>true</excludeDependencies>
             </externalRunner>

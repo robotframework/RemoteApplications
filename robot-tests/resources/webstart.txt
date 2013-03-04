@@ -1,5 +1,5 @@
 *** Settings ***
-Library         org.robotframework.remoteapplications.util.FileServer  WITH NAME  FileServer
+Library         FileServer.py   WITH NAME   FileServer
 
 *** Variables ***
 ${codeBase}  http://localhost:14563/test-app
@@ -10,7 +10,7 @@ ${jnlpWithSsl}  https://localhost:14564/test-app/test-application.jnlp
 
 *** Keywords ***
 startWebstartService
-    FileServer.start  ${TEST APP DIR}
+    FileServer.start    ${RESOURCES DIR}
 
 stopWebstartService
     FileServer.stop
