@@ -43,7 +43,7 @@ public class AgentConfigurationTest{
 
     @Test(expected=NumberFormatException.class)
     public void parseWithInvalidPort() {
-        testWindowsParser("zip.jar"+ File.pathSeparator+"port=abcd"+ File.pathSeparator+"foo.jar", null, "zip.jar"+ File.pathSeparator+"foo.jar");
+        testParser("zip.jar"+ File.pathSeparator+"port=abcd"+ File.pathSeparator+"foo.jar", null, "zip.jar"+ File.pathSeparator+"foo.jar");
     }
 
     private void testParser(String input, Integer port, String jars) {
