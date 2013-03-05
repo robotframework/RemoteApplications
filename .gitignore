@@ -1,5 +1,7 @@
+*.iml
 .idea
 target
+.DS_Store
 *$py.class
 demo/results
 demo/lib/remoteapplications*jar
