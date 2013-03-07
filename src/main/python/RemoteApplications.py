@@ -584,9 +584,6 @@ class RemoteApplicationsConnector:
         for url in RobotRemoteLibrary.getClassLoader().getResources("org/robotframework/remoteapplications/client/RobotRemoteLibrary.class"):
             if url.getProtocol() == 'jar':
                 jars.append(url.openConnection().getJarFileURL().getFile())
-        #for path in sys.path:
-        #    if 'jar' in path:
-        #        jars.append(path)
         if not jars:
             raise RuntimeError("Could not find any jars from classpath.")
         return jars

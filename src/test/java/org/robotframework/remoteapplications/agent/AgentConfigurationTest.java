@@ -44,14 +44,12 @@ public class AgentConfigurationTest{
         testParser("zip.jar"+ File.pathSeparator+"port=abcd"+ File.pathSeparator+"foo.jar", null, "zip.jar"+ File.pathSeparator+"foo.jar");
     }
 
-
     private void testParser(String input, Integer port, String jars) {
         AgentConfiguration conf = new AgentConfiguration(input);
         assertEquals(port, conf.getPort());
         List<String> expected = Arrays.asList(jars.split(File.pathSeparator));
         assertEquals(expected, conf.getJars());
     }
-
 
     private void testWindowsParser(String input, Integer port, String jars) {
         if (File.pathSeparator.equals(";"))
