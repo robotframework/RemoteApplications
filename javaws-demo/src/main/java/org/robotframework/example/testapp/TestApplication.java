@@ -70,7 +70,7 @@ public class TestApplication {
     private void addComponentsToMainPanel() {
         panel.add(new SystemExitButton());
         panel.add(new JButton("Start javaws application"){{
-            addActionListener(new MyAction("javaws " + jnlpUrl));
+            addActionListener(new MyAction("javaws -wait " + jnlpUrl));
         }});
         panel.add(new JButton("Start java application") {{
             addActionListener(new MyAction("java " + TestApplication.class.getName()));
