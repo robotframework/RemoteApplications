@@ -15,7 +15,6 @@
 import os
 import re
 import time
-import subprocess
 import tempfile
 import sys
 
@@ -458,8 +457,6 @@ class RemoteApplicationsConnector:
                      and attr not in ignore_methods]
         self._use_previously_launched = False
         self._robot_namespace_bridge = RobotLibraryImporter()
-        # FIXME: close this sometime?
-        self._files = []
 
     def _initialize(self):
         self._apps = Applications()
@@ -543,14 +540,13 @@ class RemoteApplicationsConnector:
 
     def _start(self, alias, command):
         temp = self._get_temp_file(alias)
-        self._files.append(temp)
-        print '*HTML* Directing output to <a href="%s">%s</a>' % (temp.name, temp.name)
-        temp.write('Starting with command %s' % command)
-        subprocess.Popen([command], shell=True, stdout=temp, stderr=temp)
-        return temp.name
+        print '*HTML* Directing output to <a href="%s">%s</a>' % (temp, temp)
+        print 'Starting with command %s' % '%s  1> "%s" 2>&1'
+        os.popen('%s  1> "%s" 2>&1' % (command, temp))
+        return temp
 
     def _get_temp_file(self, alias):
-        return open(os.path.join(tempfile.gettempdir(), 'remote_%s_%s.txt' % (alias, int(time.time()))), 'w')
+        return os.path.join(tempfile.gettempdir(), 'remote_%s_%s.txt' % (alias, int(time.time())))
 
     def _get_java_tool_options(self):
         if 'JAVA_TOOL_OPTIONS' in os.environ:
