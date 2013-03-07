@@ -637,7 +637,7 @@ class RemoteApplicationsConnector:
             output_file = output_file or self._apps.get_output_file_name(alias)
         app.application_started(alias, timeout, rmi_url, output_file)
         if output_file:
-            print '*html* Applications output in file <a href="%s">%s</a>' % (output_file, output_file)
+            print '*HTML* Applications output in file <a href="%s">%s</a>' % (output_file, output_file)
         self._apps.add(alias, app)
         self._active_app = app
 
