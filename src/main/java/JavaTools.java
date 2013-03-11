@@ -20,6 +20,6 @@ import org.robotframework.javalib.library.AnnotationLibrary;
 @RobotKeywords
 public class JavaTools extends AnnotationLibrary {
     public JavaTools() {
-        super("org/robotframework/javalib/keywords/*.class");
+        super("org/robotframework/remoteapplications/javatools/*.class");
     }
 }
