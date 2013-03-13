@@ -1,12 +1,10 @@
 *** Settings ***
+Resource        remoteapps_resource.txt
 Library         FileServer.py   WITH NAME   FileServer
 
 *** Variables ***
 ${codeBase}  http://localhost:14563/test-app
 ${jnlpWithMainClassUrl}  ${codeBase}/test-application.jnlp
-${jnlpWithoutMainClassUrl}  ${codeBase}/test-application-withoutmainclass.jnlp
-${jnlpWithMainAttribute}  ${codeBase}/test-application-with-main-attribute.jnlp
-${jnlpWithSsl}  https://localhost:14564/test-app/test-application.jnlp
 
 *** Keywords ***
 startWebstartService
@@ -19,3 +17,6 @@ setTrustStore
     JavaTools.setSystemProperty  javax.net.ssl.trustStore  ${TEST APP DIR}${/}jssecacerts
     JavaTools.setSystemProperty  javax.net.ssl.trustStorePassword  changeit
 
+Start Web Start Application
+    [Arguments]  ${name}  ${jnlp}=${jnlpWithMainClassUrl}
+    RemoteApplications.Start Application  ${name}  javaws ${jnlp}  60 secs  ${JAR DIR}

@@ -1,5 +1,5 @@
 *** Settings ***
-Resource        remoteapps_resource.txt
+Resource          ../resources/remoteapps_resource.txt
 Suite Setup     Start applications
 Suite Teardown  Remove Connected File
 Library         OperatingSystem

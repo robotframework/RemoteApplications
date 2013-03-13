@@ -1,8 +1,6 @@
 *** Settings ***
 Variables       variables.py
 Library         OperatingSystem
-Library         PythonpathHelper.py
-Resource        webstart.txt
 
 *** Variables ***
 ${TEST APP DIR}  ${CURDIR}${/}..${/}..${/}target${/}test-classes
@@ -54,8 +52,7 @@ startApplicationAndImportLibraries
 startExternalApplicationAndImportLibraries
     [Arguments]  ${name}  ${arguments}  ${jvmArguments}=
     setLibrarySearchOrder  ${name}Launcher
-    ${pythonPath}=  getPythonPath
-    startProcess  jython -Dpython.path=${pythonPath} ${jvmArguments} "${appLauncherScript}" ${APPLICATION} ${arguments}
+    startProcess  jython ${jvmArguments} "${appLauncherScript}" ${APPLICATION} ${arguments}
     applicationStarted
     importRemoteLibraries  ${name}
 
@@ -67,7 +64,6 @@ importRemoteLibraries
 
 startWithJavaAgent
     [Arguments]  ${command}  ${java agent args}=
-    Variable Should Exist  \${JAVA_AGENT_JAR}  You should create jar with dependencies with command "mvn assembly:assembly" before running javaagent tests.
     setEnvironmentVariable  JAVA_TOOL_OPTIONS  -javaagent:${JAVA_AGENT_JAR}=${java agent args}
     check policy on unix
     startProcess  ${command}

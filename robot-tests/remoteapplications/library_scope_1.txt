@@ -1,6 +1,6 @@
 *** Settings ***
 Suite Setup     Start Simple Application  App1
-Resource        remoteapps_resource.txt
+Resource          ../resources/remoteapps_resource.txt
 
 *** Test Cases ***
 Using Application In First Suite

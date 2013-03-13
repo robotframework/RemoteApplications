@@ -1,6 +1,6 @@
 *** Settings ***
 Test Teardown   Close All Applications
-Resource        remoteapps_resource.txt
+Resource          ../resources/remoteapps_resource.txt
 
 *** Test Cases ***
 Using Single Application

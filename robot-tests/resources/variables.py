@@ -13,4 +13,4 @@ if _paths:
     _paths.sort()
     JAVA_AGENT_JAR = _paths[-1]
 else:
-    raise RuntimeError('Please run "mvn assembly:assembly first')
+    raise RuntimeError('remoteapplications jar not found')

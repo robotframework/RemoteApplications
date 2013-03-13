@@ -1,7 +1,7 @@
 *** Settings ***
 Suite Setup     startWebstartService
 Suite Teardown  stopWebstartService
-Resource        remoteapps_resource.txt
+Resource          ../resources/webstart_resource.txt
 Force Tags      webstart
 
 *** Test Cases ***

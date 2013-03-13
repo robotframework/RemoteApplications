@@ -1,5 +1,5 @@
 *** Settings ***
-Resource        remoteapps_resource.txt
+Resource          ../resources/remoteapps_resource.txt
 
 *** Test Cases ***
 Using Application In Second Suite
