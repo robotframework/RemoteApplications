@@ -166,7 +166,7 @@
       <version>2.5.4</version>
       <scope>provided</scope>
     </dependency>
-    
+
   </dependencies>
 
   <build>
@@ -342,18 +342,43 @@
               <goal>jar</goal>
             </goals>
             <configuration>
-              <finalName>test-classes/test-lib/remoteapplications-${project.version}</finalName>
               <classesDirectory>${project.build.directory}/jarjarred</classesDirectory>
               <archive>
-            <manifestEntries>
-              <Premain-Class>org.robotframework.remoteapplications.agent.RmiServiceAgent</Premain-Class>
-            </manifestEntries>
+                <manifestEntries>
+                  <Premain-Class>org.robotframework.remoteapplications.agent.RmiServiceAgent</Premain-Class>
+                </manifestEntries>
               </archive>
             </configuration>
           </execution>
         </executions>
       </plugin>
-
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>copy</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.robotframework</groupId>
+                  <artifactId>remoteapplications</artifactId>
+                  <version>${project.version}</version>
+                  <type>jar</type>
+                  <overWrite>true</overWrite>
+                  <outputDirectory>${project.build.directory}/test-classes/test-lib</outputDirectory>
+                  <destFileName>remoteapplications-${project.version}.jar</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>org.robotframework</groupId>
         <artifactId>robotframework-maven-plugin</artifactId>
@@ -367,17 +392,16 @@
           </execution>
         </executions>
         <configuration>
-            <externalRunner>
-                <environmentVariables>
-                    <CLASSPATH>${project.basedir}/lib${path.separator}${project.build.directory}/test-classes/test-lib/remoteapplications-${project.version}.jar</CLASSPATH>
-                </environmentVariables>
-                <excludeDependencies>true</excludeDependencies>
-            </externalRunner>
+          <externalRunner>
+            <environmentVariables>
+              <CLASSPATH>${project.basedir}/lib${path.separator}${project.build.directory}/test-classes/test-lib/remoteapplications-${project.version}.jar</CLASSPATH>
+            </environmentVariables>
+            <excludeDependencies>true</excludeDependencies>
+          </externalRunner>
           <testCasesDirectory>${project.basedir}/robot-tests</testCasesDirectory>
           <logLevel>DEBUG</logLevel>
         </configuration>
       </plugin>
-
     </plugins>
   </build>
 
