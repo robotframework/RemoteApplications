@@ -14,11 +14,19 @@ See `Wiki`__ for usage instructions and tips.
 This projects started as part of `robotframework-javatools`__ project but is
 nowadays a separate project.
 
+Downloads
+=========
+
+The project jar can be downloaded `google-code`__
+
 Developing RemoteApplications
 =============================
 
-Clone the repository and run `python build.py` for development information.
+Starting from version 2.0 the project is built using only maven.
+
+Run mvn package to compile the project and mvn verify to run robot tests.
 
 .. _Robot Framework: http://robotframework.org
 __ https://github.com/robotframework/RemoteApplications/wiki
+__ http://code.google.com/p/robotframework-javatools/downloads/list
 __ http://code.google.com/p/robotframework-javatools
