@@ -28,5 +28,5 @@ Run mvn package to compile the project and mvn verify to run robot tests.
 
 .. _Robot Framework: http://robotframework.org
 __ https://github.com/robotframework/RemoteApplications/wiki
-__ http://code.google.com/p/robotframework-javatools/downloads/list
 __ http://code.google.com/p/robotframework-javatools
+__ http://code.google.com/p/robotframework-javatools/downloads/list
