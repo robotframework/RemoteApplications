@@ -2,8 +2,8 @@
 Library         RemoteApplications
 
 *** Variables ***
-${JNLP URL}  http://robotframework-javatools.googlecode.com/svn/jvmconnector/trunk/src/test/resources/test-app/test-application.jnlp
-${LIB DIRECTORY}  ${CURDIR}${/}..${/}lib
+${JNLP URL}  http://localhost:14563/test-application.jnlp
+${LIB DIRECTORY}  ${CURDIR}${/}..${/}remote_libs
 
 *** Test Cases ***
 Demonstration

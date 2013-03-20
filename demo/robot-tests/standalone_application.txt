@@ -5,6 +5,7 @@ Library         RemoteApplications
 *** Variables ***
 ${MAIN CLASS}  org.robotframework.example.Application
 ${VALID PASSWORD}  robot
+${LIB DIRECTORY}  ${CURDIR}${/}..${/}remote_libs
 
 *** Test Cases ***
 Valid Login
@@ -22,8 +23,8 @@ Invalid Login
 *** Keywords ***
 Start Demo Application
     [Arguments]  ${name}
-    Start Application  ${name}  java ${MAIN CLASS}  10 seconds
-    Take Libraries Into Use  SwingLibrary  JavaTools
+    Start Application  ${name}  java ${MAIN CLASS}  10 seconds    ${LIB DIRECTORY}
+    Take Library Into Use  SwingLibrary
 
 Login
     [Arguments]  ${password}

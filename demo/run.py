@@ -3,16 +3,15 @@
 import os
 import sys
 import subprocess
-from glob import glob
+from  javaws_app.FileServer import FileServer
 
 def main(args):
-    dir = os.path.dirname(__file__)
-    lib = os.path.join(dir, 'lib')
-    jars = glob(os.path.join(lib, '*.jar'))
-    os.environ['CLASSPATH'] = os.pathsep.join(jars)
-    outputdir = os.path.join(dir, 'results')
-    return subprocess.call(['jybot', '--outputdir', outputdir] + args,
-                            shell=os.name=='nt')
+    os.environ['CLASSPATH'] = os.pathsep.join(['lib/example_application.jar', 'lib/remoteapplications-2.0.jar'])
+    server =  FileServer()
+    server.start()
+    result = subprocess.call(['jybot'] + args, shell=os.name=='nt')
+    server.stop()
+    return result
 
 if __name__ == '__main__':
     args = sys.argv[1:]
