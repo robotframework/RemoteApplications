@@ -405,6 +405,21 @@
           </libdoc>
         </configuration>
       </plugin>
+      <plugin>
+        <!-- Use "mvn install -Dgpg.skip=true" to skip signing -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+            <execution>
+                <id>sign-artifacts</id>
+                <phase>install</phase>
+                <goals>
+                    <goal>sign</goal>
+                </goals>
+            </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 
