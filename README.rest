@@ -1,8 +1,8 @@
 About RemoteApplications
 ========================
 
-Note: RemoteApplications is replaced by the new `RemoteSwingLibrary`__ project,
-as in most cases RemoteApplications was simply used with SwingLibrary.
+*Note: RemoteApplications is replaced by the new `RemoteSwingLibrary`__ project,
+as in most cases RemoteApplications was simply used with SwingLibrary.*
 
 __ https://github.com/robotframework/remoteswinglibrary
 
