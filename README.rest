@@ -1,6 +1,11 @@
 About RemoteApplications
 ========================
 
+Note: RemoteApplications is replaced by the new `RemoteSwingLibrary`__ project,
+as in most cases RemoteApplications was simply used with SwingLibrary.
+
+__ https://github.com/robotframework/remoteswinglibrary
+
 RemoteApplications is a `Robot Framework`_ (RF) test library that is used for
 launching Java applications on a separate JVM and taking other libraries into
 use on them. This is useful when application does something that
